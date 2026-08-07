@@ -1,0 +1,6 @@
+app/.DS_Store
+app/admin/.DS_Store
+app/admin/page.tsx
+app/layout.tsx
+app/page.tsx
+app/globals.css

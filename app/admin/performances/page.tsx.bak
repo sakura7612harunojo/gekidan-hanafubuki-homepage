@@ -1,0 +1,8 @@
+export default function PerformancesPage() {
+  return (
+    <main style={{ padding: "40px" }}>
+      <h1>公演管理</h1>
+      <p>公演情報の登録・編集ページです。</p>
+    </main>
+  );
+}
