@@ -9,7 +9,7 @@ export default async function HomePage() {
   const supabase = await createClient();
   const today = getJapanDateParts();
 
-  const [{ data: todayData }, { data: upcomingData }, { data: members }, { data: works }] = await Promise.all([
+  const [{ data: todayData }, { data: upcomingData }, { data: members }, { data: works }, { data: galleryData }] = await Promise.all([
     supabase
       .from("performances")
       .select("id,performance_date,venue_name,session_type,event_name,play_title,last_show_title")
@@ -23,6 +23,13 @@ export default async function HomePage() {
       .limit(5),
     supabase.from("members").select("*").eq("is_public", true).order("sort_order"),
     supabase.from("works").select("*").eq("is_public", true).order("title").limit(6),
+    supabase
+      .from("gallery")
+      .select("id,title,storage_path,created_at")
+      .eq("is_public", true)
+      .eq("status", "published")
+      .order("created_at", { ascending: false })
+      .limit(6),
   ]);
 
   const todayPerformance = todayData as Performance | null;
@@ -59,7 +66,32 @@ export default async function HomePage() {
           )}
         </section>
 
-        <section className="section upcoming-section" id="schedule">
+      <section className="section" id="hanabuki-today">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">TODAY&apos;S HANABUKI</p>
+            <h2>今日の花吹雪</h2>
+          </div>
+        </div>
+        {(galleryData ?? []).length > 0 ? (
+          <div className="grid">
+            {(galleryData ?? []).map((photo) => (
+              <article className="card" key={photo.id}>
+                <img
+                  src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/gallery/${photo.storage_path}`}
+                  alt={photo.title || "投稿写真"}
+                  style={{ width: "100%", height: "auto", display: "block" }}
+                />
+                <h3>{photo.title || "投稿写真"}</h3>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="empty-state">写真はまだありません。</div>
+        )}
+      </section>
+
+      <section className="section upcoming-section" id="schedule">
           <div className="section-heading">
             <div>
               <p className="eyebrow">UPCOMING STAGES</p>
