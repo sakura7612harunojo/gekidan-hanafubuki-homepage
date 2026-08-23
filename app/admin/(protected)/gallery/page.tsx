@@ -45,7 +45,7 @@ async function uploadPhoto(formData: FormData) {
       title,
       storage_path: storagePath,
       is_public: false,
-      status: "draft",
+      status: "pending",
     });
 
   if (insertError) {
