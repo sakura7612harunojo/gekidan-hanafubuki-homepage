@@ -272,8 +272,8 @@ export default async function AdminGalleryPage() {
                     alt={photo.title || "投稿写真"}
                     style={{
                       width: "100%",
-                      height: 260,
-                      objectFit: "cover",
+                      height: 180,
+                      objectFit: "contain",
                       display: "block",
                       marginBottom: 16,
                       background: "#000",
