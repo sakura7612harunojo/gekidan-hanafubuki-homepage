@@ -4,3 +4,10 @@ node_modules
 .env.local
 .vercel
 .DS_Store
+.env*
+
+# Local backup files
+*.bak
+*.bak-*
+admin-backup-before-auth/
+*.tsbuildinfo

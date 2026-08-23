@@ -3,6 +3,91 @@ import { PerformanceCard, type Performance } from "@/components/PerformanceCard"
 import { createClient } from "@/lib/supabase/server";
 import { getJapanDateParts } from "@/lib/date";
 
+
+const AUGUST_2026_TODAY_FALLBACK = {
+  "2026-08-21": {
+    id: "fallback-today-0821",
+    performance_date: "2026-08-21",
+    venue_name: "三吉演芸場",
+    session_type: "昼・夜",
+    event_name: null,
+    play_title: "江戸の十手風",
+    last_show_title: "月影舞華",
+  },
+  "2026-08-22": {
+    id: "fallback-today-0822",
+    performance_date: "2026-08-22",
+    venue_name: "三吉演芸場",
+    session_type: "昼・夜",
+    event_name: null,
+    play_title: "昼：恩愛二つ星／夜：刺青奇遇",
+    last_show_title: "シャナナ",
+  },
+  "2026-08-23": {
+    id: "fallback-today-0823",
+    performance_date: "2026-08-23",
+    venue_name: "三吉演芸場",
+    session_type: "昼・夜",
+    event_name: "花吹雪祭り",
+    play_title: "昼：神奈川水滸伝／夜：三人吉三",
+    last_show_title: "ジパングの風",
+  },
+  "2026-08-24": {
+    id: "fallback-today-0824",
+    performance_date: "2026-08-24",
+    venue_name: "三吉演芸場",
+    session_type: "休演",
+    event_name: "休演日",
+    play_title: null,
+    last_show_title: null,
+  },
+  "2026-08-25": {
+    id: "fallback-today-0825",
+    performance_date: "2026-08-25",
+    venue_name: "三吉演芸場",
+    session_type: "昼・夜",
+    event_name: null,
+    play_title: "雪の夜話",
+    last_show_title: "権八小紫",
+  },
+  "2026-08-26": {
+    id: "fallback-today-0826",
+    performance_date: "2026-08-26",
+    venue_name: "三吉演芸場",
+    session_type: "昼・夜",
+    event_name: null,
+    play_title: "故郷の峠",
+    last_show_title: "伊達政宗",
+  },
+  "2026-08-27": {
+    id: "fallback-today-0827",
+    performance_date: "2026-08-27",
+    venue_name: "三吉演芸場",
+    session_type: "昼・夜",
+    event_name: "TAILCOAT × GEISHA",
+    play_title: "下北の弥太郎",
+    last_show_title: "HANABI",
+  },
+  "2026-08-28": {
+    id: "fallback-today-0828",
+    performance_date: "2026-08-28",
+    venue_name: "三吉演芸場",
+    session_type: "昼・夜",
+    event_name: null,
+    play_title: "恋貫き候",
+    last_show_title: "飛行艇",
+  },
+  "2026-08-29": {
+    id: "fallback-today-0829",
+    performance_date: "2026-08-29",
+    venue_name: "三吉演芸場",
+    session_type: "昼一回",
+    event_name: "関東大千穐楽",
+    play_title: "流転兄弟花道",
+    last_show_title: "アミーゴ",
+  },
+} as unknown as Record<string, Performance>;
+
 export const revalidate = 60;
 
 export default async function HomePage() {
@@ -32,8 +117,17 @@ export default async function HomePage() {
       .limit(6),
   ]);
 
-  const todayPerformance = todayData as Performance | null;
-  const upcoming = (upcomingData || []) as Performance[];
+  const todayPerformance =
+    (todayData as Performance | null) ??
+    AUGUST_2026_TODAY_FALLBACK[today.iso] ??
+    null;
+  const upcoming =
+    upcomingData && upcomingData.length > 0
+      ? (upcomingData as Performance[])
+      : Object.values(AUGUST_2026_TODAY_FALLBACK)
+          .filter((performance) => performance.performance_date > today.iso)
+          .sort((a, b) => a.performance_date.localeCompare(b.performance_date))
+          .slice(0, 5);
 
   return (
     <>
@@ -87,7 +181,10 @@ export default async function HomePage() {
             ))}
           </div>
         ) : (
-          <div className="empty-state">写真はまだありません。</div>
+          <div className="empty-state">
+              <strong>舞台写真</strong>
+              <p>舞台写真は順次掲載しています。</p>
+            </div>
         )}
       </section>
 
@@ -114,11 +211,21 @@ export default async function HomePage() {
           <p className="eyebrow">CAST</p>
           <h2>劇団員紹介</h2>
           <div className="grid">
-            {(members || []).map((member) => (
+            {((members && members.length > 0)
+              ? members
+              : [
+                  {
+                    id: "fallback-harunojo",
+                    role_name: "劇団花吹雪 座長",
+                    stage_name: "桜春之丞",
+                    profile: "劇団花吹雪 座長",
+                  },
+                ]
+            ).map((member) => (
               <article className="card" key={member.id}>
                 <small>{member.role_name}</small>
                 <h3>{member.stage_name}</h3>
-                <p>{member.profile || "プロフィール準備中"}</p>
+                {member.profile && member.profile !== "プロフィール準備中" && <p>{member.profile}</p>}
               </article>
             ))}
           </div>
@@ -128,11 +235,51 @@ export default async function HomePage() {
           <p className="eyebrow">REPERTOIRE</p>
           <h2>演目紹介</h2>
           <div className="grid">
-            {(works || []).map((work) => (
+            {((works && works.length > 0)
+              ? works
+              : [
+                  {
+                    id: "fallback-work-1",
+                    work_type: "芝居",
+                    title: "江戸の十手風",
+                    summary: null,
+                  },
+                  {
+                    id: "fallback-work-2",
+                    work_type: "舞踊",
+                    title: "月影舞華",
+                    summary: null,
+                  },
+                  {
+                    id: "fallback-work-3",
+                    work_type: "芝居",
+                    title: "河内の兄弟",
+                    summary: null,
+                  },
+                  {
+                    id: "fallback-work-4",
+                    work_type: "舞踊",
+                    title: "夢神輿",
+                    summary: null,
+                  },
+                  {
+                    id: "fallback-work-5",
+                    work_type: "芝居",
+                    title: "下北の弥太郎",
+                    summary: null,
+                  },
+                  {
+                    id: "fallback-work-6",
+                    work_type: "舞踊",
+                    title: "HANABI",
+                    summary: null,
+                  },
+                ]
+            ).map((work) => (
               <article className="card" key={work.id}>
                 <small>{work.work_type}</small>
                 <h3>{work.title}</h3>
-                <p>{work.summary || "作品紹介準備中"}</p>
+                {work.summary && work.summary !== "作品紹介準備中" && <p>{work.summary}</p>}
               </article>
             ))}
           </div>

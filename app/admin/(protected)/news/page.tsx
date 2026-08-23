@@ -2,6 +2,8 @@ import Link from "next/link";
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 
+export const dynamic = "force-dynamic";
+
 async function createNews(formData: FormData) {
   "use server";
 
@@ -18,6 +20,41 @@ async function createNews(formData: FormData) {
   });
 
   if (error) throw new Error(error.message);
+
+  revalidatePath("/admin/news");
+}
+
+
+async function updateNews(formData: FormData) {
+  "use server";
+
+  const supabase = createAdminClient();
+
+  const id = String(formData.get("id") ?? "");
+  const category = String(formData.get("category") ?? "").trim();
+  const title = String(formData.get("title") ?? "").trim();
+  const body = String(formData.get("body") ?? "").trim();
+  const publishedAt = String(formData.get("published_at") ?? "").trim();
+  const status = String(formData.get("status") ?? "draft").trim();
+
+  if (!id || !title) {
+    return;
+  }
+
+  const { error } = await supabase
+    .from("news")
+    .update({
+      category,
+      title,
+      body,
+      published_at: publishedAt || null,
+      status,
+    })
+    .eq("id", id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
 
   revalidatePath("/admin/news");
 }
@@ -197,6 +234,85 @@ export default async function NewsPage() {
                   >
                     状態：{item.status || "draft"}
                   </div>
+
+            <form
+              action={updateNews}
+              style={{
+                display: "grid",
+                gap: 12,
+                marginTop: 20,
+                paddingTop: 20,
+                borderTop: "1px solid #302b24",
+              }}
+            >
+              <input type="hidden" name="id" value={item.id} />
+
+              <label>
+                カテゴリ
+                <input
+                  name="category"
+                  defaultValue={item.category ?? ""}
+                  required
+                  style={inputStyle}
+                />
+              </label>
+
+              <label>
+                タイトル
+                <input
+                  name="title"
+                  defaultValue={item.title ?? ""}
+                  required
+                  style={inputStyle}
+                />
+              </label>
+
+              <label>
+                本文
+                <textarea
+                  name="body"
+                  defaultValue={item.body ?? ""}
+                  rows={6}
+                  style={{
+                    ...inputStyle,
+                    resize: "vertical",
+                    fontFamily: "inherit",
+                  }}
+                />
+              </label>
+
+              <label>
+                公開日
+                <input
+                  type="date"
+                  name="published_at"
+                  defaultValue={
+                    item.published_at
+                      ? String(item.published_at).slice(0, 10)
+                      : ""
+                  }
+                  style={inputStyle}
+                />
+              </label>
+
+              <label>
+                状態
+                <select
+                  name="status"
+                  defaultValue={item.status ?? "draft"}
+                  style={inputStyle}
+                >
+                  <option value="draft">下書き</option>
+                  <option value="published">公開</option>
+                </select>
+              </label>
+
+              <button type="submit" style={goldButton}>
+                変更を保存
+              </button>
+            </form>
+
+
 
                   <form
                     action={deleteNews}
