@@ -3,7 +3,8 @@ import { PerformanceCard, type Performance } from "@/components/PerformanceCard"
 import { createClient } from "@/lib/supabase/server";
 import { getJapanDateParts } from "@/lib/date";
 
-
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 const AUGUST_2026_TODAY_FALLBACK = {
   "2026-08-21": {
     id: "fallback-today-0821",
@@ -87,8 +88,6 @@ const AUGUST_2026_TODAY_FALLBACK = {
     last_show_title: "アミーゴ",
   },
 } as unknown as Record<string, Performance>;
-
-export const revalidate = 60;
 
 export default async function HomePage() {
   const supabase = await createClient();
