@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -22,6 +23,9 @@ async function createNews(formData: FormData) {
   if (error) throw new Error(error.message);
 
   revalidatePath("/admin/news");
+  revalidatePath("/news");
+  revalidatePath("/");
+  redirect("/admin/news");
 }
 
 
@@ -57,6 +61,9 @@ async function updateNews(formData: FormData) {
   }
 
   revalidatePath("/admin/news");
+  revalidatePath("/news");
+  revalidatePath("/");
+  redirect("/admin/news");
 }
 
 async function deleteNews(formData: FormData) {
@@ -73,6 +80,9 @@ async function deleteNews(formData: FormData) {
   if (error) throw new Error(error.message);
 
   revalidatePath("/admin/news");
+  revalidatePath("/news");
+  revalidatePath("/");
+  redirect("/admin/news");
 }
 
 export default async function NewsPage() {
