@@ -1,6 +1,6 @@
 import { Header } from "@/components/Header";
 import { PerformanceCard, type Performance } from "@/components/PerformanceCard";
-import { createClient } from "@/lib/supabase/server";
+import { createClient as createPublicSupabaseClient } from "@supabase/supabase-js";
 import { getJapanDateParts } from "@/lib/date";
 
 export const dynamic = "force-dynamic";
@@ -90,7 +90,16 @@ const AUGUST_2026_TODAY_FALLBACK = {
 } as unknown as Record<string, Performance>;
 
 export default async function HomePage() {
-  const supabase = await createClient();
+  const supabase = createPublicSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+    {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+      },
+    }
+  );
   const today = getJapanDateParts();
 
   const [{ data: todayData }, { data: upcomingData }, { data: members }, { data: works }, { data: galleryData }] = await Promise.all([
