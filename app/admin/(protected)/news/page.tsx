@@ -25,7 +25,7 @@ async function createNews(formData: FormData) {
   revalidatePath("/admin/news");
   revalidatePath("/news");
   revalidatePath("/");
-  redirect("/admin/news");
+  redirect("/admin/news?saved=1");
 }
 
 
@@ -63,7 +63,7 @@ async function updateNews(formData: FormData) {
   revalidatePath("/admin/news");
   revalidatePath("/news");
   revalidatePath("/");
-  redirect("/admin/news");
+  redirect("/admin/news?saved=1");
 }
 
 async function deleteNews(formData: FormData) {
@@ -82,10 +82,16 @@ async function deleteNews(formData: FormData) {
   revalidatePath("/admin/news");
   revalidatePath("/news");
   revalidatePath("/");
-  redirect("/admin/news");
+  redirect("/admin/news?saved=1");
 }
 
-export default async function NewsPage() {
+export default async function NewsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ saved?: string }>;
+}) {
+  const params = await searchParams;
+  const saved = params.saved === "1";
   const supabase = createAdminClient();
 
   const { data: news, error } = await supabase
@@ -124,6 +130,22 @@ export default async function NewsPage() {
         <h1 style={{ fontSize: 36, marginBottom: 32 }}>
           お知らせ管理
         </h1>
+
+      {saved && (
+        <div
+          style={{
+            marginBottom: 24,
+            padding: "16px 20px",
+            border: "1px solid #d4aa3d",
+            background: "#17130a",
+            color: "#f1d77a",
+            fontWeight: 700,
+            fontSize: 16,
+          }}
+        >
+          ✅ 変更を保存しました
+        </div>
+      )}
 
         <section
           style={{
