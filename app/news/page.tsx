@@ -1,5 +1,5 @@
 import { Header } from "@/components/Header";
-import { createClient } from "@/lib/supabase/server";
+import { createClient as createPublicSupabaseClient } from "@supabase/supabase-js";
 
 export const dynamic = "force-dynamic";
 
@@ -16,13 +16,21 @@ export default async function NewsPage() {
   let news: NewsItem[] = [];
 
   try {
-    const supabase = await createClient();
+    const supabase = createPublicSupabaseClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
+    );
 
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("news")
       .select("id,category,title,body,published_at,status")
       .eq("status", "published")
       .order("published_at", { ascending: false });
+
+    if (error) {
+      console.error("News fetch error:", error.message);
+      throw error;
+    }
 
     news = (data || []) as NewsItem[];
   } catch {
