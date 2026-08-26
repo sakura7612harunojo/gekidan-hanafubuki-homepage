@@ -274,9 +274,10 @@ export default async function PerformancesPage() {
   const supabase = await createClient();
   const today = getJapanDateParts();
   const monthStart = `${today.year}-${String(today.month).padStart(2, "0")}-01`;
-  const nextMonth = today.month === 12
-    ? `${today.year + 1}-01-01`
-    : `${today.year}-${String(today.month + 1).padStart(2, "0")}-01`;
+  const rangeEndDate = new Date(Date.UTC(today.year, today.month + 1, 1));
+  const nextMonth = `${rangeEndDate.getUTCFullYear()}-${String(
+    rangeEndDate.getUTCMonth() + 1
+  ).padStart(2, "0")}-01`;
 
   const { data } = await supabase
     .from("performances")
@@ -299,7 +300,7 @@ export default async function PerformancesPage() {
         <section className="schedule-hero">
           <p className="eyebrow">PERFORMANCE SCHEDULE</p>
           <h1>公演予定</h1>
-          <p>{today.year}年{today.month}月の公演情報です。</p>
+          <p>今月・翌月の公演情報です。</p>
         </section>
 
         <section className="section schedule-section">
