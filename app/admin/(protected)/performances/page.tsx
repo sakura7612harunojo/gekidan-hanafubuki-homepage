@@ -2,24 +2,37 @@ import Link from "next/link";
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-export const dynamic = "force-dynamic";
+function textValue(formData: FormData, key: string) {
+  const value = formData.get(key);
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  return trimmed === "" ? null : trimmed;
+}
 
 async function createPerformance(formData: FormData) {
   "use server";
 
   const supabase = createAdminClient();
 
-  const sessionType = String(formData.get("session_type") || "昼・夜");
-  const isPublic = formData.get("is_public") === "on";
+  const performanceDate = textValue(formData, "performance_date");
+  const venueName = textValue(formData, "venue_name");
+  const sessionType = textValue(formData, "session_type");
+
+  if (!performanceDate || !venueName || !sessionType) {
+    throw new Error("日付・劇場名・公演区分は必須です。");
+  }
 
   const { error } = await supabase.from("performances").insert({
-    performance_date: String(formData.get("performance_date") || ""),
-    venue_name: String(formData.get("venue_name") || "三吉演芸場"),
+    performance_date: performanceDate,
+    venue_name: venueName,
     session_type: sessionType,
-    event_name: String(formData.get("event_name") || "") || null,
-    play_title: String(formData.get("play_title") || "") || null,
-    last_show_title: String(formData.get("last_show_title") || "") || null,
-    is_public: isPublic,
+    event_name: textValue(formData, "event_name"),
+    play_title: textValue(formData, "play_title"),
+    last_show_title: textValue(formData, "last_show_title"),
+    night_show_title: textValue(formData, "night_show_title"),
+    has_first_part: formData.get("has_first_part") === "on",
+    is_public: formData.get("is_public") === "on",
+    updated_at: new Date().toISOString(),
   });
 
   if (error) throw new Error(error.message);
@@ -33,17 +46,28 @@ async function updatePerformance(formData: FormData) {
   "use server";
 
   const supabase = createAdminClient();
-  const id = String(formData.get("id") || "");
+
+  const id = textValue(formData, "id");
+  const performanceDate = textValue(formData, "performance_date");
+  const venueName = textValue(formData, "venue_name");
+  const sessionType = textValue(formData, "session_type");
+
+  if (!id) throw new Error("公演IDがありません。");
+  if (!performanceDate || !venueName || !sessionType) {
+    throw new Error("日付・劇場名・公演区分は必須です。");
+  }
 
   const { error } = await supabase
     .from("performances")
     .update({
-      performance_date: String(formData.get("performance_date") || ""),
-      venue_name: String(formData.get("venue_name") || ""),
-      session_type: String(formData.get("session_type") || "昼・夜"),
-      event_name: String(formData.get("event_name") || "") || null,
-      play_title: String(formData.get("play_title") || "") || null,
-      last_show_title: String(formData.get("last_show_title") || "") || null,
+      performance_date: performanceDate,
+      venue_name: venueName,
+      session_type: sessionType,
+      event_name: textValue(formData, "event_name"),
+      play_title: textValue(formData, "play_title"),
+      last_show_title: textValue(formData, "last_show_title"),
+      night_show_title: textValue(formData, "night_show_title"),
+      has_first_part: formData.get("has_first_part") === "on",
       is_public: formData.get("is_public") === "on",
       updated_at: new Date().toISOString(),
     })
@@ -60,7 +84,9 @@ async function deletePerformance(formData: FormData) {
   "use server";
 
   const supabase = createAdminClient();
-  const id = String(formData.get("id") || "");
+  const id = textValue(formData, "id");
+
+  if (!id) throw new Error("公演IDがありません。");
 
   const { error } = await supabase
     .from("performances")
@@ -74,6 +100,30 @@ async function deletePerformance(formData: FormData) {
   revalidatePath("/admin/performances");
 }
 
+const fieldStyle = {
+  width: "100%",
+  background: "#090806",
+  color: "#efe8dc",
+  border: "1px solid #39342c",
+  borderRadius: 4,
+  padding: "12px 12px",
+  fontSize: 16,
+} as const;
+
+const labelStyle = {
+  display: "grid",
+  gap: 7,
+  fontSize: 15,
+  fontWeight: 700,
+  color: "#efe8dc",
+} as const;
+
+const gridStyle = {
+  display: "grid",
+  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+  gap: 14,
+} as const;
+
 export default async function PerformancesPage() {
   const supabase = createAdminClient();
 
@@ -82,29 +132,31 @@ export default async function PerformancesPage() {
     .select("*")
     .order("performance_date", { ascending: true });
 
-  if (error) {
-    throw new Error(error.message);
-  }
+  if (error) throw new Error(error.message);
 
   return (
-    <main style={{
-      minHeight: "100vh",
-      background: "#080706",
-      color: "#eee7dc",
-      display: "grid",
-      gridTemplateColumns: "220px 1fr"
-    }}>
-      <aside style={{
-        borderRight: "1px solid #29251f",
-        padding: "32px 22px"
-      }}>
+    <main
+      style={{
+        minHeight: "100vh",
+        background: "#080706",
+        color: "#efe8dc",
+        display: "grid",
+        gridTemplateColumns: "220px minmax(0, 1fr)",
+      }}
+    >
+      <aside
+        style={{
+          borderRight: "1px solid #29251f",
+          padding: "32px 22px",
+          position: "sticky",
+          top: 0,
+          height: "100vh",
+          alignSelf: "start",
+        }}
+      >
         <h2 style={{ marginBottom: 28 }}>劇団花吹雪 CMS</h2>
 
-        <nav style={{
-          display: "grid",
-          gap: 18,
-          fontSize: 14
-        }}>
+        <nav style={{ display: "grid", gap: 18, fontSize: 14 }}>
           <Link href="/admin">ダッシュボード</Link>
           <Link href="/admin/performances">公演管理</Link>
           <Link href="/admin/news">お知らせ</Link>
@@ -116,206 +168,273 @@ export default async function PerformancesPage() {
       </aside>
 
       <section style={{ padding: "42px", overflowX: "auto" }}>
-        <p style={{
-          color: "#c89b3c",
-          fontSize: 12,
-          letterSpacing: 3
-        }}>
+        <p
+          style={{
+            color: "#d2a93d",
+            letterSpacing: "0.18em",
+            fontSize: 12,
+            marginBottom: 10,
+          }}
+        >
           PERFORMANCE CMS
         </p>
+        <h1 style={{ fontSize: 34, margin: "0 0 34px" }}>公演管理</h1>
 
-        <h1 style={{ fontSize: 34, margin: "8px 0 30px" }}>
-          公演管理
-        </h1>
+        <form
+          action={createPerformance}
+          style={{
+            border: "1px solid #332f28",
+            background: "#15130f",
+            padding: 22,
+            marginBottom: 34,
+            maxWidth: 980,
+          }}
+        >
+          <h2 style={{ marginTop: 0, marginBottom: 22 }}>新規公演を登録</h2>
 
-        <section style={{
-          border: "1px solid #302b24",
-          background: "#13110e",
-          padding: 24,
-          marginBottom: 34
-        }}>
-          <h2 style={{ marginTop: 0 }}>新規公演を登録</h2>
-
-          <form action={createPerformance} style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(2, minmax(220px, 1fr))",
-            gap: 16
-          }}>
-            <label>
+          <div className="performance-grid" style={gridStyle}>
+            <label style={labelStyle}>
               日付
               <input
-                required
-                name="performance_date"
                 type="date"
-                style={inputStyle}
+                name="performance_date"
+                required
+                style={fieldStyle}
               />
             </label>
 
-            <label>
+            <label style={labelStyle}>
               劇場名
               <input
-                required
                 name="venue_name"
-                defaultValue="三吉演芸場"
-                style={inputStyle}
+                defaultValue="湯守座"
+                required
+                style={fieldStyle}
               />
             </label>
 
-            <label>
+            <label style={labelStyle}>
               公演区分
-              <select name="session_type" defaultValue="昼・夜" style={inputStyle}>
+              <select
+                name="session_type"
+                defaultValue="昼・夜"
+                style={fieldStyle}
+              >
                 <option value="昼・夜">昼・夜</option>
                 <option value="昼一回">昼一回</option>
+                <option value="夜一回">夜一回</option>
                 <option value="休演">休演</option>
               </select>
             </label>
 
-            <label>
-              イベント名
-              <input name="event_name" style={inputStyle} />
+            <label style={labelStyle}>
+              イベント名・ゲスト・不在情報
+              <input name="event_name" style={fieldStyle} />
             </label>
 
-            <label>
-              芝居
-              <input name="play_title" style={inputStyle} />
+            <label style={labelStyle}>
+              芝居（昼の部）
+              <input name="play_title" style={fieldStyle} />
             </label>
 
-            <label>
-              ラストショー
-              <input name="last_show_title" style={inputStyle} />
+            <label style={labelStyle}>
+              ラストショー（昼の部）
+              <input name="last_show_title" style={fieldStyle} />
             </label>
 
-            <label style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8
-            }}>
+            <label style={{ ...labelStyle, gridColumn: "1 / -1" }}>
+              夜の部（花吹雪舞踊ショー）
               <input
-                name="is_public"
-                type="checkbox"
-                defaultChecked
+                name="night_show_title"
+                placeholder="例：アジアの海賊"
+                style={fieldStyle}
               />
+            </label>
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              gap: 22,
+              alignItems: "center",
+              flexWrap: "wrap",
+              marginTop: 18,
+            }}
+          >
+            <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              <input type="checkbox" name="has_first_part" />
+              1部あり
+            </label>
+
+            <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              <input type="checkbox" name="is_public" defaultChecked />
               公開する
             </label>
 
-            <button type="submit" style={goldButton}>
+            <button
+              type="submit"
+              style={{
+                marginLeft: "auto",
+                background: "#d6a93d",
+                color: "#090806",
+                border: 0,
+                borderRadius: 4,
+                padding: "13px 54px",
+                fontWeight: 800,
+                fontSize: 16,
+                cursor: "pointer",
+              }}
+            >
               登録する
             </button>
-          </form>
-        </section>
+          </div>
+        </form>
 
-        <h2>登録済み公演</h2>
+        <h2 style={{ marginBottom: 20 }}>登録済み公演</h2>
 
-        <div style={{
-          display: "grid",
-          gap: 16
-        }}>
-          {performances?.map((performance) => (
+        <div style={{ display: "grid", gap: 14, maxWidth: 1100 }}>
+          {(performances ?? []).map((performance) => (
             <form
               key={performance.id}
               action={updatePerformance}
               style={{
-                border: "1px solid #302b24",
-                background: "#13110e",
-                padding: 20
+                border: "1px solid #332f28",
+                background: "#15130f",
+                padding: 18,
               }}
             >
               <input type="hidden" name="id" value={performance.id} />
 
-              <div style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(3, minmax(180px, 1fr))",
-                gap: 14
-              }}>
-                <label>
+              <div className="performance-grid" style={gridStyle}>
+                <label style={labelStyle}>
                   日付
                   <input
-                    name="performance_date"
                     type="date"
-                    defaultValue={performance.performance_date}
+                    name="performance_date"
+                    defaultValue={performance.performance_date ?? ""}
                     required
-                    style={inputStyle}
+                    style={fieldStyle}
                   />
                 </label>
 
-                <label>
+                <label style={labelStyle}>
                   劇場名
                   <input
                     name="venue_name"
-                    defaultValue={performance.venue_name}
+                    defaultValue={performance.venue_name ?? ""}
                     required
-                    style={inputStyle}
+                    style={fieldStyle}
                   />
                 </label>
 
-                <label>
+                <label style={labelStyle}>
                   公演区分
                   <select
                     name="session_type"
-                    defaultValue={performance.session_type}
-                    style={inputStyle}
+                    defaultValue={performance.session_type ?? "昼・夜"}
+                    style={fieldStyle}
                   >
                     <option value="昼・夜">昼・夜</option>
                     <option value="昼一回">昼一回</option>
+                    <option value="夜一回">夜一回</option>
                     <option value="休演">休演</option>
                   </select>
                 </label>
 
-                <label>
-                  イベント
+                <label style={labelStyle}>
+                  イベント名・ゲスト・不在情報
                   <input
                     name="event_name"
                     defaultValue={performance.event_name ?? ""}
-                    style={inputStyle}
+                    style={fieldStyle}
                   />
                 </label>
 
-                <label>
-                  芝居
+                <label style={labelStyle}>
+                  芝居（昼の部）
                   <input
                     name="play_title"
                     defaultValue={performance.play_title ?? ""}
-                    style={inputStyle}
+                    style={fieldStyle}
                   />
                 </label>
 
-                <label>
-                  ラストショー
+                <label style={labelStyle}>
+                  ラストショー（昼の部）
                   <input
                     name="last_show_title"
                     defaultValue={performance.last_show_title ?? ""}
-                    style={inputStyle}
+                    style={fieldStyle}
+                  />
+                </label>
+
+                <label style={{ ...labelStyle, gridColumn: "1 / -1" }}>
+                  夜の部（花吹雪舞踊ショー）
+                  <input
+                    name="night_show_title"
+                    defaultValue={performance.night_show_title ?? ""}
+                    style={fieldStyle}
                   />
                 </label>
               </div>
 
-              <div style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 16,
-                marginTop: 18
-              }}>
-                <label style={{
+              <div
+                style={{
                   display: "flex",
+                  gap: 14,
                   alignItems: "center",
-                  gap: 8
-                }}>
+                  flexWrap: "wrap",
+                  marginTop: 16,
+                }}
+              >
+                <label
+                  style={{ display: "flex", gap: 8, alignItems: "center" }}
+                >
                   <input
-                    name="is_public"
                     type="checkbox"
-                    defaultChecked={performance.is_public}
+                    name="has_first_part"
+                    defaultChecked={Boolean(performance.has_first_part)}
+                  />
+                  1部あり
+                </label>
+
+                <label
+                  style={{ display: "flex", gap: 8, alignItems: "center" }}
+                >
+                  <input
+                    type="checkbox"
+                    name="is_public"
+                    defaultChecked={Boolean(performance.is_public)}
                   />
                   公開
                 </label>
 
-                <button type="submit" style={goldButton}>
+                <button
+                  type="submit"
+                  style={{
+                    background: "#d6a93d",
+                    color: "#090806",
+                    border: 0,
+                    borderRadius: 4,
+                    padding: "11px 20px",
+                    fontWeight: 800,
+                    cursor: "pointer",
+                  }}
+                >
                   保存
                 </button>
 
                 <button
                   type="submit"
                   formAction={deletePerformance}
-                  style={deleteButton}
+                  style={{
+                    background: "transparent",
+                    color: "#f06d6d",
+                    border: "1px solid #773b3b",
+                    borderRadius: 4,
+                    padding: "10px 18px",
+                    cursor: "pointer",
+                  }}
                 >
                   削除
                 </button>
@@ -324,35 +443,33 @@ export default async function PerformancesPage() {
           ))}
         </div>
       </section>
+
+      <style>{`
+        a {
+          color: inherit;
+          text-decoration: none;
+        }
+        a:hover {
+          color: #d6a93d;
+        }
+        @media (max-width: 820px) {
+          main {
+            grid-template-columns: 1fr !important;
+          }
+          aside {
+            position: static !important;
+            height: auto !important;
+            border-right: 0 !important;
+            border-bottom: 1px solid #29251f !important;
+          }
+          section {
+            padding: 22px !important;
+          }
+          .performance-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
     </main>
   );
 }
-
-const inputStyle = {
-  width: "100%",
-  marginTop: 6,
-  padding: "11px 12px",
-  background: "#090806",
-  border: "1px solid #39332a",
-  color: "#eee7dc",
-  borderRadius: 4,
-} as const;
-
-const goldButton = {
-  background: "#c89b3c",
-  color: "#111",
-  border: 0,
-  padding: "11px 18px",
-  fontWeight: 700,
-  cursor: "pointer",
-  borderRadius: 4,
-} as const;
-
-const deleteButton = {
-  background: "transparent",
-  color: "#dd7777",
-  border: "1px solid #713838",
-  padding: "10px 18px",
-  cursor: "pointer",
-  borderRadius: 4,
-} as const;
