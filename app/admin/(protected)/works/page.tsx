@@ -1,13 +1,14 @@
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
+import { AdminSubmitButton } from "@/components/admin/AdminSubmitButton";
 
 export const dynamic = "force-dynamic";
 
 async function createWork(formData: FormData) {
   "use server";
 
-  const supabase = createAdminClient();
+  const supabase = await createClient();
 
   const { error } = await supabase.from("works").insert({
     work_type: String(formData.get("work_type") || "").trim(),
@@ -25,7 +26,7 @@ async function createWork(formData: FormData) {
 async function updateWork(formData: FormData) {
   "use server";
 
-  const supabase = createAdminClient();
+  const supabase = await createClient();
   const id = String(formData.get("id") || "");
 
   const { error } = await supabase
@@ -47,7 +48,7 @@ async function updateWork(formData: FormData) {
 async function deleteWork(formData: FormData) {
   "use server";
 
-  const supabase = createAdminClient();
+  const supabase = await createClient();
   const id = String(formData.get("id") || "");
 
   const { error } = await supabase.from("works").delete().eq("id", id);
@@ -59,7 +60,7 @@ async function deleteWork(formData: FormData) {
 }
 
 export default async function WorksPage() {
-  const supabase = createAdminClient();
+  const supabase = await createClient();
 
   const { data } = await supabase
     .from("works")
@@ -113,9 +114,9 @@ export default async function WorksPage() {
               <input name="is_public" type="checkbox" defaultChecked /> 公開
             </label>
 
-            <button type="submit" style={goldButton}>
+            <AdminSubmitButton pendingLabel="登録中…" style={goldButton}>
               登録
-            </button>
+            </AdminSubmitButton>
           </form>
         </section>
 
@@ -172,16 +173,16 @@ export default async function WorksPage() {
                       公開
                     </label>
 
-                    <button type="submit" style={goldButton}>
+                    <AdminSubmitButton pendingLabel="保存中…" style={goldButton}>
                       保存
-                    </button>
+                    </AdminSubmitButton>
                   </form>
 
                   <form action={deleteWork} style={{ marginTop: 12 }}>
                     <input type="hidden" name="id" value={work.id} />
-                    <button type="submit" style={deleteButton}>
+                    <AdminSubmitButton pendingLabel="削除中…" style={deleteButton}>
                       削除
-                    </button>
+                    </AdminSubmitButton>
                   </form>
                 </article>
               ))}

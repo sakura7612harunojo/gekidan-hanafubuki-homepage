@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
+import { AdminSubmitButton } from "@/components/admin/AdminSubmitButton";
 
 function textValue(formData: FormData, key: string) {
   const value = formData.get(key);
@@ -12,7 +13,7 @@ function textValue(formData: FormData, key: string) {
 async function createPerformance(formData: FormData) {
   "use server";
 
-  const supabase = createAdminClient();
+  const supabase = await createClient();
 
   const performanceDate = textValue(formData, "performance_date");
   const venueName = textValue(formData, "venue_name");
@@ -45,7 +46,7 @@ async function createPerformance(formData: FormData) {
 async function updatePerformance(formData: FormData) {
   "use server";
 
-  const supabase = createAdminClient();
+  const supabase = await createClient();
 
   const id = textValue(formData, "id");
   const performanceDate = textValue(formData, "performance_date");
@@ -83,7 +84,7 @@ async function updatePerformance(formData: FormData) {
 async function deletePerformance(formData: FormData) {
   "use server";
 
-  const supabase = createAdminClient();
+  const supabase = await createClient();
   const id = textValue(formData, "id");
 
   if (!id) throw new Error("公演IDがありません。");
@@ -125,7 +126,7 @@ const gridStyle = {
 } as const;
 
 export default async function PerformancesPage() {
-  const supabase = createAdminClient();
+  const supabase = await createClient();
 
   const { data: performances, error } = await supabase
     .from("performances")
@@ -271,8 +272,8 @@ export default async function PerformancesPage() {
               公開する
             </label>
 
-            <button
-              type="submit"
+            <AdminSubmitButton
+              pendingLabel="登録中…"
               style={{
                 marginLeft: "auto",
                 background: "#d6a93d",
@@ -286,7 +287,7 @@ export default async function PerformancesPage() {
               }}
             >
               登録する
-            </button>
+            </AdminSubmitButton>
           </div>
         </form>
 
@@ -409,8 +410,8 @@ export default async function PerformancesPage() {
                   公開
                 </label>
 
-                <button
-                  type="submit"
+                <AdminSubmitButton
+                  pendingLabel="保存中…"
                   style={{
                     background: "#d6a93d",
                     color: "#090806",
@@ -422,10 +423,10 @@ export default async function PerformancesPage() {
                   }}
                 >
                   保存
-                </button>
+                </AdminSubmitButton>
 
-                <button
-                  type="submit"
+                <AdminSubmitButton
+                  pendingLabel="削除中…"
                   formAction={deletePerformance}
                   style={{
                     background: "transparent",
@@ -437,7 +438,7 @@ export default async function PerformancesPage() {
                   }}
                 >
                   削除
-                </button>
+                </AdminSubmitButton>
               </div>
             </form>
           ))}

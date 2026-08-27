@@ -1,14 +1,15 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
+import { AdminSubmitButton } from "@/components/admin/AdminSubmitButton";
 
 export const dynamic = "force-dynamic";
 
 async function createNews(formData: FormData) {
   "use server";
 
-  const supabase = createAdminClient();
+  const supabase = await createClient();
 
   const publishedAt = String(formData.get("published_at") || "").trim();
 
@@ -32,7 +33,7 @@ async function createNews(formData: FormData) {
 async function updateNews(formData: FormData) {
   "use server";
 
-  const supabase = createAdminClient();
+  const supabase = await createClient();
 
   const id = String(formData.get("id") ?? "");
   const category = String(formData.get("category") ?? "").trim();
@@ -69,7 +70,7 @@ async function updateNews(formData: FormData) {
 async function deleteNews(formData: FormData) {
   "use server";
 
-  const supabase = createAdminClient();
+  const supabase = await createClient();
   const id = String(formData.get("id") || "");
 
   const { error } = await supabase
@@ -92,7 +93,7 @@ export default async function NewsPage({
 }) {
   const params = await searchParams;
   const saved = params.saved === "1";
-  const supabase = createAdminClient();
+  const supabase = await createClient();
 
   const { data: news, error } = await supabase
     .from("news")
@@ -210,9 +211,9 @@ export default async function NewsPage({
               </select>
             </label>
 
-            <button type="submit" style={goldButton}>
+            <AdminSubmitButton pendingLabel="登録中…" style={goldButton}>
               登録する
-            </button>
+            </AdminSubmitButton>
           </form>
         </section>
 
@@ -339,9 +340,9 @@ export default async function NewsPage({
                 </select>
               </label>
 
-              <button type="submit" style={goldButton}>
+              <AdminSubmitButton pendingLabel="保存中…" style={goldButton}>
                 変更を保存
-              </button>
+              </AdminSubmitButton>
             </form>
 
 
@@ -355,9 +356,9 @@ export default async function NewsPage({
                       name="id"
                       value={item.id}
                     />
-                    <button type="submit" style={deleteButton}>
+                    <AdminSubmitButton pendingLabel="削除中…" style={deleteButton}>
                       削除
-                    </button>
+                    </AdminSubmitButton>
                   </form>
                 </article>
               ))}

@@ -1,13 +1,17 @@
 import { revalidatePath } from "next/cache";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
+import { AdminSubmitButton } from "@/components/admin/AdminSubmitButton";
 
 export const dynamic = "force-dynamic";
+
+const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
+const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 
 
 async function uploadPhoto(formData: FormData) {
   "use server";
 
-  const supabase = createAdminClient();
+  const supabase = await createClient();
 
   const title = String(formData.get("title") ?? "").trim();
   const file = formData.get("file");
@@ -16,8 +20,12 @@ async function uploadPhoto(formData: FormData) {
     return;
   }
 
-  if (!file.type.startsWith("image/")) {
-    throw new Error("画像ファイルを選択してください。");
+  if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
+    throw new Error("JPEG・PNG・WebPの画像を選択してください。");
+  }
+
+  if (file.size > MAX_IMAGE_SIZE) {
+    throw new Error("画像は10MB以下にしてください。");
   }
 
   const extension =
@@ -60,7 +68,7 @@ async function uploadPhoto(formData: FormData) {
 async function publishPhoto(formData: FormData) {
   "use server";
 
-  const supabase = createAdminClient();
+  const supabase = await createClient();
   const id = String(formData.get("id") || "");
 
   const { error } = await supabase
@@ -81,7 +89,7 @@ async function publishPhoto(formData: FormData) {
 async function hidePhoto(formData: FormData) {
   "use server";
 
-  const supabase = createAdminClient();
+  const supabase = await createClient();
   const id = String(formData.get("id") || "");
 
   const { error } = await supabase
@@ -101,7 +109,7 @@ async function hidePhoto(formData: FormData) {
 async function deletePhoto(formData: FormData) {
   "use server";
 
-  const supabase = createAdminClient();
+  const supabase = await createClient();
   const id = String(formData.get("id") || "");
   const storagePath = String(formData.get("storage_path") || "");
 
@@ -121,7 +129,7 @@ async function deletePhoto(formData: FormData) {
 }
 
 export default async function AdminGalleryPage() {
-  const supabase = createAdminClient();
+  const supabase = await createClient();
 
   const { data: photos, error } = await supabase
     .from("gallery")
@@ -197,7 +205,7 @@ export default async function AdminGalleryPage() {
             <input
               type="file"
               name="file"
-              accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
+              accept="image/jpeg,image/png,image/webp"
               required
               style={{
                 display: "block",
@@ -216,8 +224,8 @@ export default async function AdminGalleryPage() {
             登録直後は非公開です。確認後に「公開」を押してください。
           </p>
 
-          <button
-            type="submit"
+          <AdminSubmitButton
+            pendingLabel="アップロード中…"
             style={{
               padding: "14px 18px",
               background: "#d4a83d",
@@ -229,7 +237,7 @@ export default async function AdminGalleryPage() {
             }}
           >
             写真をアップロード
-          </button>
+          </AdminSubmitButton>
         </form>
       </section>
 
@@ -312,8 +320,8 @@ export default async function AdminGalleryPage() {
                     {photo.status !== "published" && (
                       <form action={publishPhoto}>
                         <input type="hidden" name="id" value={photo.id} />
-                        <button
-                          type="submit"
+                        <AdminSubmitButton
+                          pendingLabel="公開中…"
                           style={{
                             padding: "10px 16px",
                             background: "#d4a83d",
@@ -324,15 +332,15 @@ export default async function AdminGalleryPage() {
                           }}
                         >
                           公開
-                        </button>
+                        </AdminSubmitButton>
                       </form>
                     )}
 
                     {photo.status === "published" && (
                       <form action={hidePhoto}>
                         <input type="hidden" name="id" value={photo.id} />
-                        <button
-                          type="submit"
+                        <AdminSubmitButton
+                          pendingLabel="変更中…"
                           style={{
                             padding: "10px 16px",
                             background: "transparent",
@@ -342,7 +350,7 @@ export default async function AdminGalleryPage() {
                           }}
                         >
                           非公開
-                        </button>
+                        </AdminSubmitButton>
                       </form>
                     )}
 
@@ -353,8 +361,8 @@ export default async function AdminGalleryPage() {
                         name="storage_path"
                         value={photo.storage_path}
                       />
-                      <button
-                        type="submit"
+                      <AdminSubmitButton
+                        pendingLabel="削除中…"
                         style={{
                           padding: "10px 16px",
                           background: "transparent",
@@ -364,7 +372,7 @@ export default async function AdminGalleryPage() {
                         }}
                       >
                         削除
-                      </button>
+                      </AdminSubmitButton>
                     </form>
                   </div>
                 </article>
