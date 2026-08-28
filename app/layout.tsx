@@ -1,6 +1,6 @@
-import Script from "next/script";
 import type { Metadata } from "next";
 import "./globals.css";
+import GoogleAnalytics from "./google-analytics";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.gekidan-hanafubuki.com"),
@@ -20,18 +20,7 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body>
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-642C3PSFKH"
-          strategy="afterInteractive"
-        />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-642C3PSFKH');
-          `}
-        </Script>
+        <GoogleAnalytics />
 {children}</body>
     </html>
   );
