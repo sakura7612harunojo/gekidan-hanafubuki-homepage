@@ -4,6 +4,51 @@ import { AdminSubmitButton } from "@/components/admin/AdminSubmitButton";
 
 export const dynamic = "force-dynamic";
 
+type GalleryBucket = "gallery" | "gallery-private";
+type GallerySupabaseClient = Awaited<ReturnType<typeof createClient>>;
+
+function getGalleryMimeType(storagePath: string) {
+  const extension = storagePath.split(".").pop()?.toLowerCase();
+
+  if (extension === "jpg" || extension === "jpeg") return "image/jpeg";
+  if (extension === "png") return "image/png";
+  if (extension === "webp") return "image/webp";
+
+  return "application/octet-stream";
+}
+
+async function moveGalleryObject(
+  supabase: GallerySupabaseClient,
+  fromBucket: GalleryBucket,
+  toBucket: GalleryBucket,
+  storagePath: string,
+) {
+  const { data: file, error: downloadError } = await supabase.storage
+    .from(fromBucket)
+    .download(storagePath);
+
+  if (downloadError) throw new Error(downloadError.message);
+
+  const { error: uploadError } = await supabase.storage
+    .from(toBucket)
+    .upload(storagePath, file, {
+      contentType: file.type || getGalleryMimeType(storagePath),
+      upsert: false,
+    });
+
+  if (uploadError) throw new Error(uploadError.message);
+
+  const { error: removeError } = await supabase.storage
+    .from(fromBucket)
+    .remove([storagePath]);
+
+  if (removeError) {
+    await supabase.storage.from(toBucket).remove([storagePath]);
+    throw new Error(removeError.message);
+  }
+}
+
+
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 
@@ -37,7 +82,7 @@ async function uploadPhoto(formData: FormData) {
   const bytes = await file.arrayBuffer();
 
   const { error: uploadError } = await supabase.storage
-    .from("gallery")
+    .from("gallery-private")
     .upload(storagePath, bytes, {
       contentType: file.type || "application/octet-stream",
       upsert: false,
@@ -57,7 +102,7 @@ async function uploadPhoto(formData: FormData) {
     });
 
   if (insertError) {
-    await supabase.storage.from("gallery").remove([storagePath]);
+    await supabase.storage.from("gallery-private").remove([storagePath]);
     throw new Error(insertError.message);
   }
 
@@ -71,6 +116,23 @@ async function publishPhoto(formData: FormData) {
   const supabase = await createClient();
   const id = String(formData.get("id") || "");
 
+  const { data: photo, error: photoError } = await supabase
+    .from("gallery")
+    .select("id,storage_path,status,is_public")
+    .eq("id", id)
+    .single();
+
+  if (photoError) throw new Error(photoError.message);
+
+  if (photo.status === "published" && photo.is_public) return;
+
+  await moveGalleryObject(
+    supabase,
+    "gallery-private",
+    "gallery",
+    photo.storage_path,
+  );
+
   const { error } = await supabase
     .from("gallery")
     .update({
@@ -80,7 +142,18 @@ async function publishPhoto(formData: FormData) {
     })
     .eq("id", id);
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    try {
+      await moveGalleryObject(
+        supabase,
+        "gallery",
+        "gallery-private",
+        photo.storage_path,
+      );
+    } catch {}
+
+    throw new Error(error.message);
+  }
 
   revalidatePath("/admin/gallery");
   revalidatePath("/");
@@ -92,6 +165,23 @@ async function hidePhoto(formData: FormData) {
   const supabase = await createClient();
   const id = String(formData.get("id") || "");
 
+  const { data: photo, error: photoError } = await supabase
+    .from("gallery")
+    .select("id,storage_path,status,is_public")
+    .eq("id", id)
+    .single();
+
+  if (photoError) throw new Error(photoError.message);
+
+  if (photo.status === "published") {
+    await moveGalleryObject(
+      supabase,
+      "gallery",
+      "gallery-private",
+      photo.storage_path,
+    );
+  }
+
   const { error } = await supabase
     .from("gallery")
     .update({
@@ -100,7 +190,20 @@ async function hidePhoto(formData: FormData) {
     })
     .eq("id", id);
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    if (photo.status === "published") {
+      try {
+        await moveGalleryObject(
+          supabase,
+          "gallery-private",
+          "gallery",
+          photo.storage_path,
+        );
+      } catch {}
+    }
+
+    throw new Error(error.message);
+  }
 
   revalidatePath("/admin/gallery");
   revalidatePath("/");
@@ -111,10 +214,24 @@ async function deletePhoto(formData: FormData) {
 
   const supabase = await createClient();
   const id = String(formData.get("id") || "");
-  const storagePath = String(formData.get("storage_path") || "");
 
-  if (storagePath) {
-    await supabase.storage.from("gallery").remove([storagePath]);
+  const { data: photo, error: photoError } = await supabase
+    .from("gallery")
+    .select("id,storage_path,status")
+    .eq("id", id)
+    .single();
+
+  if (photoError) throw new Error(photoError.message);
+
+  const sourceBucket =
+    photo.status === "published" ? "gallery" : "gallery-private";
+
+  if (photo.storage_path) {
+    const { error: removeError } = await supabase.storage
+      .from(sourceBucket)
+      .remove([photo.storage_path]);
+
+    if (removeError) throw new Error(removeError.message);
   }
 
   const { error } = await supabase
@@ -137,6 +254,29 @@ export default async function AdminGalleryPage() {
     .order("created_at", { ascending: false });
 
   if (error) throw new Error(error.message);
+
+  const photoUrls = new Map<string, string>();
+
+  for (const photo of photos ?? []) {
+    if (!photo.storage_path) continue;
+
+    if (photo.status === "published") {
+      const { data } = supabase.storage
+        .from("gallery")
+        .getPublicUrl(photo.storage_path);
+
+      photoUrls.set(photo.id, data.publicUrl);
+      continue;
+    }
+
+    const { data, error: signedUrlError } = await supabase.storage
+      .from("gallery-private")
+      .createSignedUrl(photo.storage_path, 600);
+
+    if (!signedUrlError && data?.signedUrl) {
+      photoUrls.set(photo.id, data.signedUrl);
+    }
+  }
 
   return (
     <main
@@ -260,11 +400,7 @@ export default async function AdminGalleryPage() {
             }}
           >
             {photos.map((photo) => {
-              const { data } = supabase.storage
-                .from("gallery")
-                .getPublicUrl(photo.storage_path);
-
-              const imageUrl = data.publicUrl;
+              const imageUrl = photoUrls.get(photo.id) ?? "";
 
               return (
                 <article
