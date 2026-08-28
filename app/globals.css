@@ -147,6 +147,8 @@ button, input, textarea, select { font: inherit; }
 .empty-state { padding: 34px; border: 1px solid var(--line); background: var(--panel); color: var(--muted); }
 
 .admin-shell { min-height: 100vh; display: grid; grid-template-columns: 240px 1fr; }
+.admin-simple-shell { min-height: 100vh; padding: 36px clamp(20px, 5vw, 72px); }
+.admin-simple-panel { width: min(100%, 1100px); margin: 0 auto; }
 .sidebar { background: #0d0b09; padding: 28px 20px; border-right: 1px solid var(--line); }
 .sidebar a { display: block; padding: 11px 8px; color: #bbb; }
 .content { padding: 35px; }

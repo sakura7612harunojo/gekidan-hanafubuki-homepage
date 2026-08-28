@@ -70,8 +70,8 @@ export default async function WorksPage() {
   const works = data || [];
 
   return (
-    <main className="admin-shell">
-      <section className="admin-panel">
+    <main className="admin-simple-shell">
+      <section className="admin-simple-panel">
         <div style={{ marginBottom: 32 }}>
           <Link href="/admin" style={{ color: "#d4a83d" }}>
             ← 管理ダッシュボード
