@@ -18,7 +18,15 @@ async function createMember(formData: FormData) {
     is_public: formData.get("is_public") === "on",
   });
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    if (error.code === "23505") {
+      revalidatePath("/admin/members");
+      revalidatePath("/");
+      return;
+    }
+
+    throw new Error(error.message);
+  }
 
   revalidatePath("/admin/members");
   revalidatePath("/");
@@ -30,12 +38,24 @@ async function updateMember(formData: FormData) {
   const supabase = await createClient();
   const id = String(formData.get("id") || "");
 
+  const { data: current, error: currentError } = await supabase
+    .from("members")
+    .select("role_name,profile")
+    .eq("id", id)
+    .single();
+
+  if (currentError) throw new Error(currentError.message);
+
   const { error } = await supabase
     .from("members")
     .update({
       stage_name: String(formData.get("stage_name") || "").trim(),
-      role_name: String(formData.get("role_name") || "").trim(),
-      profile: String(formData.get("profile") || "").trim(),
+      role_name: formData.has("role_name")
+        ? String(formData.get("role_name") ?? "").trim()
+        : current.role_name ?? "",
+      profile: formData.has("profile")
+        ? String(formData.get("profile") ?? "").trim()
+        : current.profile ?? "",
       sort_order: Number(formData.get("sort_order") || 0),
       is_public: formData.get("is_public") === "on",
     })
