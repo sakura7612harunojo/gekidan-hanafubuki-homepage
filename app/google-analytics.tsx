@@ -1,10 +1,11 @@
 "use client";
 
 import Script from "next/script";
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 
 const MEASUREMENT_ID = "G-642C3PSFKH";
+const DISABLE_KEY = `ga-disable-${MEASUREMENT_ID}`;
 
 declare global {
   interface Window {
@@ -20,6 +21,12 @@ function isAdminPath(pathname: string) {
 export default function GoogleAnalytics() {
   const pathname = usePathname();
   const mounted = useRef(false);
+  const admin = isAdminPath(pathname);
+
+  useLayoutEffect(() => {
+    const gaWindow = window as typeof window & Record<string, unknown>;
+    gaWindow[DISABLE_KEY] = admin;
+  }, [admin]);
 
   useEffect(() => {
     if (!mounted.current) {
@@ -27,18 +34,16 @@ export default function GoogleAnalytics() {
       return;
     }
 
-    if (isAdminPath(pathname)) return;
+    if (admin) return;
 
     window.gtag?.("event", "page_view", {
       page_path: pathname,
       page_location: window.location.href,
       page_title: document.title,
     });
-  }, [pathname]);
+  }, [pathname, admin]);
 
-  if (isAdminPath(pathname)) {
-    return null;
-  }
+  if (admin) return null;
 
   return (
     <>
@@ -46,26 +51,23 @@ export default function GoogleAnalytics() {
         src={`https://www.googletagmanager.com/gtag/js?id=${MEASUREMENT_ID}`}
         strategy="afterInteractive"
       />
-
       <Script id="google-analytics" strategy="afterInteractive">
         {`
+          window['${DISABLE_KEY}'] = false;
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           window.gtag = gtag;
 
           gtag('js', new Date());
-
           gtag('config', '${MEASUREMENT_ID}', {
             send_page_view: false
           });
 
-          if (!window.location.pathname.startsWith('/admin')) {
-            gtag('event', 'page_view', {
-              page_path: window.location.pathname,
-              page_location: window.location.href,
-              page_title: document.title
-            });
-          }
+          gtag('event', 'page_view', {
+            page_path: window.location.pathname,
+            page_location: window.location.href,
+            page_title: document.title
+          });
         `}
       </Script>
     </>
