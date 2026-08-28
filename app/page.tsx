@@ -1,3 +1,12 @@
+export const metadata: Metadata = {
+  title: { absolute: "劇団花吹雪｜大衆演劇 公式サイト" },
+  description: "劇団花吹雪の公式サイト。大衆演劇の公演予定、本日の演目、劇団員、芝居・舞踊演目、お知らせを掲載しています。座長 桜春之丞・櫻京之介。",
+  alternates: { canonical: "/" },
+  openGraph: { type:"website", locale:"ja_JP", url:"/", siteName:"劇団花吹雪", title:"劇団花吹雪｜大衆演劇 公式サイト", description:"劇団花吹雪の公式サイト。大衆演劇の公演予定、本日の演目、劇団員、芝居・舞踊演目、お知らせを掲載しています。座長 桜春之丞・櫻京之介。", images:[{url:"/opengraph-image",width:1200,height:630,alt:"劇団花吹雪"}] },
+  twitter: { card:"summary_large_image", title:"劇団花吹雪｜大衆演劇 公式サイト", description:"劇団花吹雪の公式サイト。大衆演劇の公演予定、本日の演目、劇団員、芝居・舞踊演目、お知らせを掲載しています。座長 桜春之丞・櫻京之介。", images:["/opengraph-image"] },
+};
+
+import type { Metadata } from "next";
 import { Header } from "@/components/Header";
 import { PerformanceCard, type Performance } from "@/components/PerformanceCard";
 import { createClient as createPublicSupabaseClient } from "@supabase/supabase-js";

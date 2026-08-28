@@ -1,3 +1,12 @@
+export const metadata: Metadata = {
+  title: { absolute: "公演予定｜劇団花吹雪" },
+  description: "劇団花吹雪の公演予定。公演日、劇場、芝居、ラストショー、イベント・ゲスト情報を掲載しています。",
+  alternates: { canonical: "/performances" },
+  openGraph: { type:"website", locale:"ja_JP", url:"/performances", siteName:"劇団花吹雪", title:"公演予定｜劇団花吹雪", description:"劇団花吹雪の公演予定。公演日、劇場、芝居、ラストショー、イベント・ゲスト情報を掲載しています。", images:[{url:"/opengraph-image",width:1200,height:630,alt:"劇団花吹雪"}] },
+  twitter: { card:"summary_large_image", title:"公演予定｜劇団花吹雪", description:"劇団花吹雪の公演予定。公演日、劇場、芝居、ラストショー、イベント・ゲスト情報を掲載しています。", images:["/opengraph-image"] },
+};
+
+import type { Metadata } from "next";
 import { Header } from "@/components/Header";
 import { PerformanceCard, type Performance } from "@/components/PerformanceCard";
 import { createClient } from "@/lib/supabase/server";

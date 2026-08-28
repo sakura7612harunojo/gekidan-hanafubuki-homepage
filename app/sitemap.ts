@@ -1,23 +1,7 @@
 import type { MetadataRoute } from "next";
-
-export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://gekidan-hanafubuki-homepage.vercel.app";
-
-  return [
-    {
-      url: baseUrl,
-      priority: 1,
-      changeFrequency: "daily",
-    },
-    {
-      url: `${baseUrl}/performances`,
-      priority: 0.9,
-      changeFrequency: "daily",
-    },
-    {
-      url: `${baseUrl}/news`,
-      priority: 0.8,
-      changeFrequency: "daily",
-    },
-  ];
-}
+const U="https://www.gekidan-hanafubuki.com";
+export default function sitemap():MetadataRoute.Sitemap{const d=new Date();return[
+{url:`${U}/`,lastModified:d,changeFrequency:"daily",priority:1},
+{url:`${U}/performances`,lastModified:d,changeFrequency:"daily",priority:.9},
+{url:`${U}/news`,lastModified:d,changeFrequency:"weekly",priority:.8}
+]}
