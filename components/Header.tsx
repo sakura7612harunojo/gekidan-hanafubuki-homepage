@@ -7,8 +7,8 @@ export function Header() {
       <nav className="nav" aria-label="メインメニュー">
         <Link href="/#today">本日の公演</Link>
         <Link href="/performances">公演予定</Link>
-        <Link href="/#cast">劇団員</Link>
-        <Link href="/#repertoire">演目</Link>
+        <a href="/#cast">劇団員</a>
+        <a href="/#repertoire">演目</a>
         <Link href="/news">お知らせ</Link>
         <Link href="/admin">管理画面</Link>
       </nav>
