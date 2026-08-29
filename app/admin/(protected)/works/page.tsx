@@ -5,6 +5,19 @@ import { AdminSubmitButton } from "@/components/admin/AdminSubmitButton";
 
 export const dynamic = "force-dynamic";
 
+type WorkMutationError = {
+  code?: string | null;
+  message?: string | null;
+} | null;
+
+function workMutationErrorMessage(error: WorkMutationError) {
+  if (error?.code === "23505") {
+    return "同じ種類・同じ演目名はすでに登録されています。";
+  }
+
+  return error?.message || "演目の保存に失敗しました。";
+}
+
 async function createWork(formData: FormData) {
   "use server";
 
@@ -17,7 +30,7 @@ async function createWork(formData: FormData) {
     is_public: formData.get("is_public") === "on",
   });
 
-  if (error) throw new Error(error.message);
+  if (error) throw new Error(workMutationErrorMessage(error));
 
   revalidatePath("/admin/works");
   revalidatePath("/");
@@ -29,17 +42,42 @@ async function updateWork(formData: FormData) {
   const supabase = await createClient();
   const id = String(formData.get("id") || "");
 
+  const { data: existing, error: loadError } = await supabase
+    .from("works")
+    .select("work_type,title,summary,is_public")
+    .eq("id", id)
+    .single();
+
+  if (loadError) {
+    throw new Error(loadError.message);
+  }
+
+  const nextWork = {
+    work_type: formData.has("work_type")
+      ? String(formData.get("work_type") || "").trim()
+      : existing.work_type,
+
+    title: formData.has("title")
+      ? String(formData.get("title") || "").trim()
+      : existing.title,
+
+    summary: formData.has("summary")
+      ? String(formData.get("summary") || "").trim()
+      : existing.summary,
+
+    is_public: formData.has("_is_public_present")
+      ? formData.has("is_public")
+      : existing.is_public,
+  };
+
   const { error } = await supabase
     .from("works")
-    .update({
-      work_type: String(formData.get("work_type") || "").trim(),
-      title: String(formData.get("title") || "").trim(),
-      summary: String(formData.get("summary") || "").trim(),
-      is_public: formData.get("is_public") === "on",
-    })
+    .update(nextWork)
     .eq("id", id);
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    throw new Error(workMutationErrorMessage(error));
+  }
 
   revalidatePath("/admin/works");
   revalidatePath("/");
@@ -98,7 +136,7 @@ export default async function WorksPage() {
 
             <label>
               演目名
-              <input name="title" required style={inputStyle} />
+                            <input name="title" required style={inputStyle} />
             </label>
 
             <label>
@@ -165,6 +203,7 @@ export default async function WorksPage() {
                     </label>
 
                     <label>
+                      <input type="hidden" name="_is_public_present" value="1" />
                       <input
                         name="is_public"
                         type="checkbox"
