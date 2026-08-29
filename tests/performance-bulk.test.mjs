@@ -43,16 +43,14 @@ test("休演日は演目を自動的に空にする", () => {
   assert.equal(row.last_show_title, null);
   assert.equal(row.night_show_title, null);
   assert.equal(row.has_first_part, false);
-  assert.equal(row.event_name, "休演日");
 });
 
-test("月共通の劇場名を空欄行へ適用できる", () => {
+test("月共通の劇場名を適用できる", () => {
   const form = new FormData();
 
   form.set("default_venue", "湯守座");
   form.set("session_type__2026-09-01", "昼・夜");
   form.set("venue_name__2026-09-01", "");
-  form.set("event_name__2026-09-01", "初日");
   form.set("play_title__2026-09-01", "坪井金五郎");
   form.set("last_show_title__2026-09-01", "DANCE DANCE DANCE");
   form.set("night_show_title__2026-09-01", "アジアの海賊");
@@ -68,7 +66,7 @@ test("月共通の劇場名を空欄行へ適用できる", () => {
   assert.equal(rows[0].is_public, true);
 });
 
-test("同一日付をupsertする実装になっている", async () => {
+test("同一日付をupsertする", async () => {
   const source = await readFile(
     "app/admin/(protected)/performances/bulk/page.tsx",
     "utf8",
@@ -76,4 +74,13 @@ test("同一日付をupsertする実装になっている", async () => {
 
   assert.match(source, /upsert\s*\(\s*rows/);
   assert.match(source, /onConflict:\s*"performance_date"/);
+});
+
+test("通常の公演管理から月間一括編集へ移動できる", async () => {
+  const source = await readFile(
+    "app/admin/(protected)/performances/page.tsx",
+    "utf8",
+  );
+
+  assert.match(source, /\/admin\/performances\/bulk/);
 });
