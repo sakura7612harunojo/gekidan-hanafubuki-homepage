@@ -180,6 +180,21 @@ export default async function PerformancesPage() {
           PERFORMANCE CMS
         </p>
         <h1 style={{ fontSize: 34, margin: "0 0 34px" }}>公演管理</h1>
+        <div style={{ margin: "12px 0 24px" }}>
+          <a
+            href="/admin/performances/bulk"
+            style={{
+              display: "inline-block",
+              padding: "11px 16px",
+              background: "#d9ad3d",
+              color: "#080706",
+              fontWeight: 800,
+              textDecoration: "none",
+            }}
+          >
+            月間一括編集
+          </a>
+        </div>
 
         <form
           action={createPerformance}
