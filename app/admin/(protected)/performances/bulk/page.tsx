@@ -1,11 +1,21 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { AdminSubmitButton } from "@/components/admin/AdminSubmitButton";
+import {
+  BulkPerformanceForm,
+  ConfirmForm,
+  PendingButton,
+} from "@/components/admin/BulkPerformanceActions";
+
 import {
   PERFORMANCE_SESSION_TYPES,
-  rowsFromBulkFormData,
+  copyRowsToMonth,
+  monthDates,
+  safeMonth,
+  shiftMonth,
+  type BulkPerformanceRow,
 } from "@/lib/performance-bulk";
+
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -27,65 +37,56 @@ type ExistingPerformance = {
   is_public: boolean | null;
 };
 
-function currentJapanMonth() {
-  return new Date(Date.now() + 9 * 60 * 60 * 1000)
-    .toISOString()
-    .slice(0, 7);
+function redirectNotice(
+  month: string,
+  notice: string,
+): never {
+  redirect(
+    `/admin/performances/bulk?month=${month}&notice=${encodeURIComponent(
+      notice,
+    )}`,
+  );
 }
 
-function safeMonth(value: string | undefined) {
-  if (!value || !/^\d{4}-(0[1-9]|1[0-2])$/.test(value)) {
-    return currentJapanMonth();
-  }
-  return value;
-}
-
-function monthDates(month: string) {
-  const [year, monthNumber] = month.split("-").map(Number);
-  const days = new Date(year, monthNumber, 0).getDate();
-
-  return Array.from({ length: days }, (_, index) => {
-    const day = String(index + 1).padStart(2, "0");
-    return `${month}-${day}`;
-  });
-}
-
-function shiftMonth(month: string, delta: number) {
-  const [year, monthNumber] = month.split("-").map(Number);
-  const date = new Date(Date.UTC(year, monthNumber - 1 + delta, 1));
-
-  return `${date.getUTCFullYear()}-${String(
-    date.getUTCMonth() + 1,
-  ).padStart(2, "0")}`;
+function redirectError(
+  month: string,
+  message: string,
+): never {
+  redirect(
+    `/admin/performances/bulk?month=${month}&error=${encodeURIComponent(
+      message,
+    )}`,
+  );
 }
 
 async function saveBulkPerformances(formData: FormData) {
   "use server";
 
-  const month = safeMonth(String(formData.get("month") ?? ""));
+  const month = safeMonth(
+    String(formData.get("month") ?? ""),
+  );
 
-  let rows;
+  const {
+    rowsFromBulkFormData,
+  } = await import("@/lib/performance-bulk");
+
+  let rows: BulkPerformanceRow[];
 
   try {
     rows = rowsFromBulkFormData(formData);
   } catch (error) {
-    const message =
+    redirectError(
+      month,
       error instanceof Error
         ? error.message
-        : "入力内容を確認してください。";
-
-    redirect(
-      `/admin/performances/bulk?month=${month}&error=${encodeURIComponent(
-        message,
-      )}`,
+        : "入力内容を確認してください。",
     );
   }
 
   if (rows.length === 0) {
-    redirect(
-      `/admin/performances/bulk?month=${month}&error=${encodeURIComponent(
-        "保存対象の公演がありません。",
-      )}`,
+    redirectError(
+      month,
+      "保存対象の公演がありません。",
     );
   }
 
@@ -98,11 +99,7 @@ async function saveBulkPerformances(formData: FormData) {
     });
 
   if (error) {
-    redirect(
-      `/admin/performances/bulk?month=${month}&error=${encodeURIComponent(
-        error.message,
-      )}`,
-    );
+    redirectError(month, error.message);
   }
 
   revalidatePath("/admin/performances");
@@ -110,8 +107,160 @@ async function saveBulkPerformances(formData: FormData) {
   revalidatePath("/");
   revalidatePath("/performances");
 
-  redirect(
-    `/admin/performances/bulk?month=${month}&saved=1`,
+  redirectNotice(
+    month,
+    `${rows.length}日分を保存しました。`,
+  );
+}
+
+async function setMonthPublicity(
+  formData: FormData,
+) {
+  "use server";
+
+  const month = safeMonth(
+    String(formData.get("month") ?? ""),
+  );
+
+  const isPublic =
+    String(formData.get("publicity") ?? "") ===
+    "public";
+
+  const dates = monthDates(month);
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("performances")
+    .update({
+      is_public: isPublic,
+    })
+    .gte("performance_date", dates[0])
+    .lte(
+      "performance_date",
+      dates[dates.length - 1],
+    );
+
+  if (error) {
+    redirectError(month, error.message);
+  }
+
+  revalidatePath("/admin/performances");
+  revalidatePath("/admin/performances/bulk");
+  revalidatePath("/");
+  revalidatePath("/performances");
+
+  redirectNotice(
+    month,
+    isPublic
+      ? `${month}を一括公開しました。`
+      : `${month}を一括非公開にしました。`,
+  );
+}
+
+async function copyPreviousMonth(
+  formData: FormData,
+) {
+  "use server";
+
+  const month = safeMonth(
+    String(formData.get("month") ?? ""),
+  );
+
+  const venueName = String(
+    formData.get("copy_venue_name") ?? "",
+  ).trim();
+
+  if (!venueName) {
+    redirectError(
+      month,
+      "コピー先の劇場名を入力してください。",
+    );
+  }
+
+  const sourceMonth = shiftMonth(month, -1);
+  const sourceDates = monthDates(sourceMonth);
+
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("performances")
+    .select(
+      "performance_date,venue_name,session_type,event_name,play_title,last_show_title,night_show_title,has_first_part,is_public",
+    )
+    .gte(
+      "performance_date",
+      sourceDates[0],
+    )
+    .lte(
+      "performance_date",
+      sourceDates[sourceDates.length - 1],
+    )
+    .order("performance_date");
+
+  if (error) {
+    redirectError(month, error.message);
+  }
+
+  if (!data || data.length === 0) {
+    redirectError(
+      month,
+      `${sourceMonth}にコピー元の公演がありません。`,
+    );
+  }
+
+  const sourceRows: BulkPerformanceRow[] =
+    data.map((row) => ({
+      performance_date: row.performance_date,
+      venue_name: row.venue_name ?? "",
+      session_type:
+        row.session_type as BulkPerformanceRow["session_type"],
+      event_name: row.event_name ?? null,
+      play_title: row.play_title ?? null,
+      last_show_title:
+        row.last_show_title ?? null,
+      night_show_title:
+        row.night_show_title ?? null,
+      has_first_part: Boolean(
+        row.has_first_part,
+      ),
+      is_public: row.is_public !== false,
+    }));
+
+  let copiedRows: BulkPerformanceRow[];
+
+  try {
+    copiedRows = copyRowsToMonth(
+      sourceRows,
+      month,
+      venueName,
+    );
+  } catch (error) {
+    redirectError(
+      month,
+      error instanceof Error
+        ? error.message
+        : "コピーできませんでした。",
+    );
+  }
+
+  const { error: copyError } = await supabase
+    .from("performances")
+    .upsert(copiedRows, {
+      onConflict: "performance_date",
+    });
+
+  if (copyError) {
+    redirectError(month, copyError.message);
+  }
+
+  revalidatePath("/admin/performances");
+  revalidatePath("/admin/performances/bulk");
+  revalidatePath("/");
+  revalidatePath("/performances");
+
+  redirectNotice(
+    month,
+    `${sourceMonth}から${copiedRows.length}日分をコピーしました。`,
   );
 }
 
@@ -128,9 +277,15 @@ export default async function BulkPerformancesPage({
       : undefined,
   );
 
-  const saved = params.saved === "1";
+  const notice =
+    typeof params.notice === "string"
+      ? params.notice
+      : "";
+
   const errorMessage =
-    typeof params.error === "string" ? params.error : "";
+    typeof params.error === "string"
+      ? params.error
+      : "";
 
   const dates = monthDates(month);
   const firstDate = dates[0];
@@ -151,15 +306,38 @@ export default async function BulkPerformancesPage({
     throw new Error(error.message);
   }
 
-  const existingRows = (data ?? []) as ExistingPerformance[];
+  const existingRows =
+    (data ?? []) as ExistingPerformance[];
 
   const byDate = new Map(
-    existingRows.map((row) => [row.performance_date, row]),
+    existingRows.map((row) => [
+      row.performance_date,
+      row,
+    ]),
   );
 
   const defaultVenue =
-    existingRows.find((row) => row.venue_name?.trim())
-      ?.venue_name ?? "";
+    existingRows.find(
+      (row) => row.venue_name?.trim(),
+    )?.venue_name ?? "";
+
+  const initialRows: BulkPerformanceRow[] =
+    existingRows.map((row) => ({
+      performance_date: row.performance_date,
+      venue_name: row.venue_name ?? "",
+      session_type:
+        row.session_type as BulkPerformanceRow["session_type"],
+      event_name: row.event_name ?? null,
+      play_title: row.play_title ?? null,
+      last_show_title:
+        row.last_show_title ?? null,
+      night_show_title:
+        row.night_show_title ?? null,
+      has_first_part: Boolean(
+        row.has_first_part,
+      ),
+      is_public: row.is_public !== false,
+    }));
 
   const previousMonth = shiftMonth(month, -1);
   const nextMonth = shiftMonth(month, 1);
@@ -173,10 +351,17 @@ export default async function BulkPerformancesPage({
         padding: "32px 24px 80px",
       }}
     >
-      <div style={{ maxWidth: 1600, margin: "0 auto" }}>
+      <div
+        style={{
+          maxWidth: 1600,
+          margin: "0 auto",
+        }}
+      >
         <a
           href="/admin/performances"
-          style={{ color: "#d4a83d" }}
+          style={{
+            color: "#d4a83d",
+          }}
         >
           ← 公演管理へ戻る
         </a>
@@ -191,14 +376,24 @@ export default async function BulkPerformancesPage({
           MONTHLY PERFORMANCE CMS
         </p>
 
-        <h1 style={{ fontSize: 36, marginBottom: 8 }}>
+        <h1
+          style={{
+            fontSize: 36,
+            marginBottom: 8,
+          }}
+        >
           月間一括編集
         </h1>
 
-        <p style={{ color: "#aaa29a", lineHeight: 1.8 }}>
-          1か月分をまとめて編集できます。
-          「未登録」の日は保存対象から外れ、既存データも削除されません。
-          「休演」は保存時に芝居・ラストショー・夜の部・1部ありを自動的に空にします。
+        <p
+          style={{
+            color: "#aaa29a",
+            lineHeight: 1.8,
+          }}
+        >
+          月単位で公演をまとめて管理できます。
+          未登録日は既存データを削除しません。
+          休演日は保存時に芝居・ラストショー・夜の部・1部ありを自動的に空にします。
         </p>
 
         <div
@@ -231,7 +426,11 @@ export default async function BulkPerformancesPage({
               defaultValue={month}
               style={inputStyle}
             />
-            <button type="submit" style={navButtonStyle}>
+
+            <button
+              type="submit"
+              style={navButtonStyle}
+            >
               表示
             </button>
           </form>
@@ -244,18 +443,165 @@ export default async function BulkPerformancesPage({
           </a>
         </div>
 
-        {saved ? (
+        {notice ? (
           <div style={successStyle}>
-            ✅ {month} の公演を一括保存しました。
+            ✅ {notice}
           </div>
         ) : null}
 
         {errorMessage ? (
-          <div style={errorStyle}>⚠️ {errorMessage}</div>
+          <div style={errorStyle}>
+            ⚠️ {errorMessage}
+          </div>
         ) : null}
 
-        <form action={saveBulkPerformances}>
-          <input type="hidden" name="month" value={month} />
+        <section style={actionPanelStyle}>
+          <h2 style={{ marginTop: 0 }}>
+            月間操作
+          </h2>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns:
+                "repeat(auto-fit, minmax(280px, 1fr))",
+              gap: 16,
+            }}
+          >
+            <div style={smallPanelStyle}>
+              <strong>
+                前月をこの月へコピー
+              </strong>
+
+              <p style={helpStyle}>
+                {previousMonth}の内容を、
+                同じ日付番号で{month}へコピーします。
+                31日が存在しない月などは自動的に除外します。
+              </p>
+
+              <ConfirmForm
+                action={copyPreviousMonth}
+                message={
+                  existingRows.length > 0
+                    ? `${month}には既に${existingRows.length}日分あります。\n前月の内容で同じ日付を上書きします。よろしいですか？`
+                    : `${previousMonth}の内容を${month}へコピーします。よろしいですか？`
+                }
+              >
+                <input
+                  type="hidden"
+                  name="month"
+                  value={month}
+                />
+
+                <label>
+                  コピー先劇場名
+                  <input
+                    name="copy_venue_name"
+                    required
+                    defaultValue={
+                      defaultVenue
+                    }
+                    placeholder="例：湯守座"
+                    style={inputStyle}
+                  />
+                </label>
+
+                <div
+                  style={{
+                    marginTop: 12,
+                  }}
+                >
+                  <PendingButton
+                    pendingLabel="コピー中…"
+                  >
+                    前月をコピー
+                  </PendingButton>
+                </div>
+              </ConfirmForm>
+            </div>
+
+            <div style={smallPanelStyle}>
+              <strong>
+                一括公開・非公開
+              </strong>
+
+              <p style={helpStyle}>
+                現在の{month}に登録済みの
+                {existingRows.length}
+                日分をまとめて切り替えます。
+              </p>
+
+              <div
+                style={{
+                  display: "flex",
+                  gap: 10,
+                  flexWrap: "wrap",
+                }}
+              >
+                <ConfirmForm
+                  action={setMonthPublicity}
+                  message={`${month}の登録済み${existingRows.length}日分を公開します。よろしいですか？`}
+                >
+                  <input
+                    type="hidden"
+                    name="month"
+                    value={month}
+                  />
+                  <input
+                    type="hidden"
+                    name="publicity"
+                    value="public"
+                  />
+
+                  <PendingButton
+                    pendingLabel="公開中…"
+                    disabled={
+                      existingRows.length === 0
+                    }
+                  >
+                    一括公開
+                  </PendingButton>
+                </ConfirmForm>
+
+                <ConfirmForm
+                  action={setMonthPublicity}
+                  message={`${month}の登録済み${existingRows.length}日分を非公開にします。よろしいですか？`}
+                >
+                  <input
+                    type="hidden"
+                    name="month"
+                    value={month}
+                  />
+                  <input
+                    type="hidden"
+                    name="publicity"
+                    value="private"
+                  />
+
+                  <PendingButton
+                    pendingLabel="変更中…"
+                    disabled={
+                      existingRows.length === 0
+                    }
+                    danger
+                  >
+                    一括非公開
+                  </PendingButton>
+                </ConfirmForm>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <BulkPerformanceForm
+          action={saveBulkPerformances}
+          initialRows={initialRows}
+        >
+          <input
+            type="hidden"
+            name="month"
+            value={month}
+          />
 
           <section style={panelStyle}>
             <label
@@ -264,7 +610,10 @@ export default async function BulkPerformancesPage({
                 maxWidth: 600,
               }}
             >
-              <strong>月共通の劇場名</strong>
+              <strong>
+                月共通の劇場名
+              </strong>
+
               <input
                 name="default_venue"
                 defaultValue={defaultVenue}
@@ -279,7 +628,8 @@ export default async function BulkPerformancesPage({
                 marginBottom: 0,
               }}
             >
-              各日の劇場名が空欄の場合、ここに入力した劇場名を使用します。
+              各日の劇場名が空欄の場合は、
+              ここに入力した劇場名を使用します。
             </p>
           </section>
 
@@ -309,7 +659,10 @@ export default async function BulkPerformancesPage({
                     "1部",
                     "公開",
                   ].map((heading) => (
-                    <th key={heading} style={thStyle}>
+                    <th
+                      key={heading}
+                      style={thStyle}
+                    >
                       {heading}
                     </th>
                   ))}
@@ -318,14 +671,19 @@ export default async function BulkPerformancesPage({
 
               <tbody>
                 {dates.map((date) => {
-                  const row = byDate.get(date);
+                  const row =
+                    byDate.get(date);
 
                   return (
                     <tr key={date}>
                       <td style={tdStyle}>
                         <strong>
-                          {Number(date.slice(-2))}日
+                          {Number(
+                            date.slice(-2),
+                          )}
+                          日
                         </strong>
+
                         <div
                           style={{
                             fontSize: 12,
@@ -340,10 +698,16 @@ export default async function BulkPerformancesPage({
                       <td style={tdStyle}>
                         <select
                           name={`session_type__${date}`}
-                          defaultValue={row?.session_type ?? ""}
+                          defaultValue={
+                            row?.session_type ??
+                            ""
+                          }
                           style={smallInputStyle}
                         >
-                          <option value="">未登録</option>
+                          <option value="">
+                            未登録
+                          </option>
+
                           {PERFORMANCE_SESSION_TYPES.map(
                             (session) => (
                               <option
@@ -360,7 +724,10 @@ export default async function BulkPerformancesPage({
                       <td style={tdStyle}>
                         <input
                           name={`venue_name__${date}`}
-                          defaultValue={row?.venue_name ?? ""}
+                          defaultValue={
+                            row?.venue_name ??
+                            ""
+                          }
                           placeholder="共通劇場なら空欄可"
                           style={smallInputStyle}
                         />
@@ -369,7 +736,10 @@ export default async function BulkPerformancesPage({
                       <td style={tdStyle}>
                         <input
                           name={`event_name__${date}`}
-                          defaultValue={row?.event_name ?? ""}
+                          defaultValue={
+                            row?.event_name ??
+                            ""
+                          }
                           style={smallInputStyle}
                         />
                       </td>
@@ -377,7 +747,10 @@ export default async function BulkPerformancesPage({
                       <td style={tdStyle}>
                         <input
                           name={`play_title__${date}`}
-                          defaultValue={row?.play_title ?? ""}
+                          defaultValue={
+                            row?.play_title ??
+                            ""
+                          }
                           style={smallInputStyle}
                         />
                       </td>
@@ -386,7 +759,8 @@ export default async function BulkPerformancesPage({
                         <input
                           name={`last_show_title__${date}`}
                           defaultValue={
-                            row?.last_show_title ?? ""
+                            row?.last_show_title ??
+                            ""
                           }
                           style={smallInputStyle}
                         />
@@ -396,7 +770,8 @@ export default async function BulkPerformancesPage({
                         <input
                           name={`night_show_title__${date}`}
                           defaultValue={
-                            row?.night_show_title ?? ""
+                            row?.night_show_title ??
+                            ""
                           }
                           style={smallInputStyle}
                         />
@@ -428,7 +803,8 @@ export default async function BulkPerformancesPage({
                           name={`is_public__${date}`}
                           defaultChecked={
                             row
-                              ? row.is_public !== false
+                              ? row.is_public !==
+                                false
                               : true
                           }
                         />
@@ -446,28 +822,30 @@ export default async function BulkPerformancesPage({
               bottom: 16,
               marginTop: 20,
               padding: 16,
-              background: "rgba(8,7,6,.94)",
-              border: "1px solid #302b24",
+              background:
+                "rgba(8,7,6,.94)",
+              border:
+                "1px solid #302b24",
               zIndex: 10,
             }}
           >
-            <AdminSubmitButton
-              pendingLabel="一括保存中…"
+            <div
               style={{
-                width: "100%",
-                padding: "16px 20px",
-                border: 0,
-                background: "#d9ad3d",
-                color: "#080706",
-                fontWeight: 800,
-                fontSize: 16,
-                cursor: "pointer",
+                marginBottom: 10,
+                color: "#aaa29a",
+                fontSize: 13,
               }}
             >
+              保存前に変更日数を確認します。
+            </div>
+
+            <PendingButton
+              pendingLabel="一括保存中…"
+            >
               {month} を一括保存
-            </AdminSubmitButton>
+            </PendingButton>
           </div>
-        </form>
+        </BulkPerformanceForm>
       </div>
     </main>
   );
@@ -478,6 +856,23 @@ const panelStyle = {
   background: "#13110e",
   padding: 20,
   margin: "24px 0",
+};
+
+const actionPanelStyle = {
+  ...panelStyle,
+  marginBottom: 24,
+};
+
+const smallPanelStyle = {
+  border: "1px solid #302b24",
+  padding: 16,
+  background: "#0d0b09",
+};
+
+const helpStyle = {
+  color: "#aaa29a",
+  lineHeight: 1.7,
+  fontSize: 13,
 };
 
 const inputStyle = {

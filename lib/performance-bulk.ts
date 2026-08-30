@@ -41,6 +41,41 @@ function formText(formData: FormData, name: string) {
   return String(formData.get(name) ?? "");
 }
 
+export function currentJapanMonth() {
+  return new Date(Date.now() + 9 * 60 * 60 * 1000)
+    .toISOString()
+    .slice(0, 7);
+}
+
+export function safeMonth(value: string | undefined) {
+  if (!value || !/^\d{4}-(0[1-9]|1[0-2])$/.test(value)) {
+    return currentJapanMonth();
+  }
+
+  return value;
+}
+
+export function monthDates(month: string) {
+  const [year, monthNumber] = month.split("-").map(Number);
+  const days = new Date(year, monthNumber, 0).getDate();
+
+  return Array.from({ length: days }, (_, index) => {
+    const day = String(index + 1).padStart(2, "0");
+    return `${month}-${day}`;
+  });
+}
+
+export function shiftMonth(month: string, delta: number) {
+  const [year, monthNumber] = month.split("-").map(Number);
+  const date = new Date(
+    Date.UTC(year, monthNumber - 1 + delta, 1),
+  );
+
+  return `${date.getUTCFullYear()}-${String(
+    date.getUTCMonth() + 1,
+  ).padStart(2, "0")}`;
+}
+
 export function normalizeBulkPerformance(
   input: BulkPerformanceInput,
 ): BulkPerformanceRow | null {
@@ -52,7 +87,7 @@ export function normalizeBulkPerformance(
 
   const session = input.session_type.trim();
 
-  // 「未登録」は既存データを削除せず、その行を保存対象から外す。
+  // 未登録は削除ではなく「保存対象外」。
   if (session === "") return null;
 
   if (
@@ -78,7 +113,7 @@ export function normalizeBulkPerformance(
     session_type: session as PerformanceSessionType,
     event_name: nullableText(input.event_name),
 
-    // 休演日は演目を残さない。
+    // 休演日は演目を自動消去。
     play_title: isRest ? null : nullableText(input.play_title),
     last_show_title: isRest
       ? null
@@ -124,8 +159,42 @@ export function rowsFromBulkFormData(
         ),
         has_first_part:
           formData.get(`has_first_part__${date}`) === "on",
-        is_public: formData.get(`is_public__${date}`) === "on",
+        is_public:
+          formData.get(`is_public__${date}`) === "on",
       }),
     )
-    .filter((row): row is BulkPerformanceRow => row !== null);
+    .filter(
+      (row): row is BulkPerformanceRow => row !== null,
+    );
+}
+
+export function copyRowsToMonth(
+  rows: BulkPerformanceRow[],
+  targetMonth: string,
+  venueName: string,
+) {
+  const validDates = new Set(monthDates(targetMonth));
+  const venue = venueName.trim();
+
+  if (!venue) {
+    throw new Error("コピー先の劇場名を入力してください。");
+  }
+
+  return rows
+    .map((row) => {
+      const day = row.performance_date.slice(-2);
+      const targetDate = `${targetMonth}-${day}`;
+
+      // 例：31日→30日までしかない月の場合は無視。
+      if (!validDates.has(targetDate)) return null;
+
+      return {
+        ...row,
+        performance_date: targetDate,
+        venue_name: venue,
+      };
+    })
+    .filter(
+      (row): row is BulkPerformanceRow => row !== null,
+    );
 }
