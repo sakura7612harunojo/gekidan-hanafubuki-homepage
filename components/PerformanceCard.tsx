@@ -8,6 +8,7 @@ export type Performance = {
   event_name: string | null;
   play_title: string | null;
   last_show_title: string | null;
+  night_show_title: string | null;
 };
 
 type Props = {
@@ -65,6 +66,12 @@ export function PerformanceCard({ performance, featured = false }: Props) {
               <span>ラスト</span>
               <strong>{performance.last_show_title || "未定"}</strong>
             </div>
+            {performance.night_show_title ? (
+              <div className="program-row">
+                <span>夜の部</span>
+                <strong>{performance.night_show_title}</strong>
+              </div>
+            ) : null}
           </div>
         )}
       </div>
