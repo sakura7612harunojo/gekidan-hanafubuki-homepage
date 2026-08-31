@@ -13,8 +13,80 @@ import { createClient as createPublicSupabaseClient } from "@supabase/supabase-j
 import { getJapanDateParts } from "@/lib/date";
 
 import { NextPerformanceNotice } from "@/components/NextPerformanceNotice";
+import { PERFORMANCE_VENUES } from "@/lib/performance-venues";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+
+// HANABUKI_MONTHLY_VENUE_HELPERS
+type VenueInfoEntry = {
+  label: string;
+  value: string;
+};
+
+function venueFieldLabel(key: string) {
+  const normalized = key.toLowerCase().replace(/[_\-\s]/g, "");
+
+  if (normalized.includes("url") || normalized.includes("website") || normalized.includes("maplink")) return null;
+  if (normalized === "name" || normalized === "title" || normalized.includes("venuename")) return "公演先";
+  if (normalized.includes("address")) return "住所";
+  if (normalized.includes("phone") || normalized.includes("tel")) return "電話";
+  if (normalized.includes("access")) return "アクセス";
+  if (normalized.includes("reserv")) return "観劇予約";
+  if (normalized.includes("time") || normalized.includes("hour") || normalized.includes("schedule")) return "公演時間";
+  if (normalized.includes("guide") || normalized.includes("notice") || normalized.includes("highlight")) return "今月のご案内";
+  if (normalized === "day" || normalized.includes("lunch") || normalized.includes("noon")) return "昼";
+  if (normalized === "night" || normalized.includes("evening")) return "夜";
+
+  return null;
+}
+
+function venueFieldValue(value: unknown): string | null {
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    return trimmed || null;
+  }
+
+  if (Array.isArray(value)) {
+    const lines = value
+      .map((item) => venueFieldValue(item))
+      .filter((item): item is string => Boolean(item));
+    return lines.length > 0 ? lines.join("\n") : null;
+  }
+
+  if (value && typeof value === "object") {
+    const lines = Object.entries(value as Record<string, unknown>)
+      .map(([key, nested]) => {
+        const formatted = venueFieldValue(nested);
+        if (!formatted) return null;
+        const nestedLabel = venueFieldLabel(key);
+        return nestedLabel ? `${nestedLabel}：${formatted}` : formatted;
+      })
+      .filter((item): item is string => Boolean(item));
+    return lines.length > 0 ? lines.join("\n") : null;
+  }
+
+  return null;
+}
+
+function getVenueInfoEntries(venue: unknown): VenueInfoEntry[] {
+  if (!venue || typeof venue !== "object") return [];
+
+  const seen = new Set<string>();
+
+  return Object.entries(venue as Record<string, unknown>)
+    .map(([key, value]) => {
+      const label = venueFieldLabel(key);
+      const formatted = venueFieldValue(value);
+      return label && formatted ? { label, value: formatted } : null;
+    })
+    .filter((entry): entry is VenueInfoEntry => Boolean(entry))
+    .filter((entry) => {
+      if (seen.has(entry.label)) return false;
+      seen.add(entry.label);
+      return true;
+    });
+}
+
 const AUGUST_2026_TODAY_FALLBACK = {
   "2026-08-21": {
     id: "fallback-today-0821",
@@ -147,6 +219,12 @@ export default async function HomePage() {
           .sort((a, b) => a.performance_date.localeCompare(b.performance_date))
           .slice(0, 5);
 
+
+  const currentMonth = today.iso.slice(0, 7);
+  const currentVenue =
+    PERFORMANCE_VENUES[currentMonth as keyof typeof PERFORMANCE_VENUES];
+  const currentVenueEntries = getVenueInfoEntries(currentVenue);
+
   return (
     <>
       <Header />
@@ -180,11 +258,55 @@ export default async function HomePage() {
           )}
         </section>
 
+        <section className="section" id="monthly-venue">
+          <div className="section-heading">
+            <div>
+              <p className="eyebrow">THIS MONTH</p>
+              <h2>今月の公演情報</h2>
+            </div>
+            <a className="text-link" href={`/performances#month-${currentMonth}`}>月間予定を見る →</a>
+          </div>
+
+          {currentVenueEntries.length > 0 ? (
+            <div
+              style={{
+                border: "1px solid #5b4720",
+                background: "#13110e",
+                padding: "24px",
+              }}
+            >
+              <div style={{ display: "grid", gap: "0" }}>
+                {currentVenueEntries.map((entry) => (
+                  <div
+                    key={entry.label}
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "120px minmax(0, 1fr)",
+                      gap: "16px",
+                      padding: "12px 0",
+                      borderBottom: "1px solid #302b24",
+                    }}
+                  >
+                    <span style={{ color: "#aaa29a", fontSize: "13px" }}>{entry.label}</span>
+                    <strong style={{ whiteSpace: "pre-line", lineHeight: 1.7 }}>{entry.value}</strong>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="empty-state">
+              今月の会場情報は公演予定ページでご案内しています。
+            </div>
+          )}
+        </section>
+
+
+
       <section className="section" id="hanabuki-today">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">TODAY&apos;S HANABUKI</p>
-            <h2>今日の花吹雪</h2>
+            <p className="eyebrow">HANABUKI GALLERY</p>
+            <h2>花吹雪ギャラリー</h2>
           </div>
         </div>
         {(galleryData ?? []).length > 0 ? (
