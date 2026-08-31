@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 
 import { Header } from "@/components/Header";
+import { PerformanceVenueCard } from "@/components/PerformanceVenueCard";
+import { PERFORMANCE_VENUES } from "@/lib/performance-venues";
 import {
   PerformanceCard,
   type Performance,
@@ -81,13 +83,21 @@ export default async function PerformancesPage() {
 
   const performances = (data ?? []) as Performance[];
 
-  const monthKeys = Array.from(
-    new Set(
-      performances.map((performance) =>
-        performance.performance_date.slice(0, 7),
-      ),
-    ),
+  const performanceMonths = performances.map(
+    (performance) =>
+      performance.performance_date.slice(0, 7),
   );
+
+  const venueMonths = Object.keys(
+    PERFORMANCE_VENUES,
+  ).filter((month) => month >= currentMonth);
+
+  const monthKeys = Array.from(
+    new Set([
+      ...performanceMonths,
+      ...venueMonths,
+    ]),
+  ).sort();
 
   const performancesByMonth = new Map<string, Performance[]>();
 
@@ -177,6 +187,20 @@ export default async function PerformancesPage() {
                         <span>{monthLabel(month, currentYear)}</span>
                         <small>{monthPerformances.length}日分</small>
                       </div>
+
+                      {PERFORMANCE_VENUES[month] ? (
+                        <PerformanceVenueCard
+                          venue={PERFORMANCE_VENUES[month]}
+                        />
+                      ) : null}
+
+                      {monthPerformances.length === 0 ? (
+                        <div className="empty-state">
+                          <p>
+                            演目・日程は決まり次第掲載します。
+                          </p>
+                        </div>
+                      ) : null}
 
                       <div className="schedule-grid">
                         {monthPerformances.map((performance) => (
