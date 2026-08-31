@@ -7,8 +7,9 @@ import {
   PendingButton,
 } from "@/components/admin/BulkPerformanceActions";
 
+import { BulkPerformanceEditor } from "@/components/admin/BulkPerformanceEditor";
+
 import {
-  PERFORMANCE_SESSION_TYPES,
   copyRowsToMonth,
   monthDates,
   safeMonth,
@@ -633,188 +634,10 @@ export default async function BulkPerformancesPage({
             </p>
           </section>
 
-          <div
-            style={{
-              overflowX: "auto",
-              border: "1px solid #302b24",
-            }}
-          >
-            <table
-              style={{
-                width: "100%",
-                minWidth: 1550,
-                borderCollapse: "collapse",
-              }}
-            >
-              <thead>
-                <tr>
-                  {[
-                    "日付",
-                    "公演区分",
-                    "劇場名",
-                    "イベント・ゲスト・不在",
-                    "芝居",
-                    "ラストショー",
-                    "夜の部",
-                    "1部",
-                    "公開",
-                  ].map((heading) => (
-                    <th
-                      key={heading}
-                      style={thStyle}
-                    >
-                      {heading}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-
-              <tbody>
-                {dates.map((date) => {
-                  const row =
-                    byDate.get(date);
-
-                  return (
-                    <tr key={date}>
-                      <td style={tdStyle}>
-                        <strong>
-                          {Number(
-                            date.slice(-2),
-                          )}
-                          日
-                        </strong>
-
-                        <div
-                          style={{
-                            fontSize: 12,
-                            color: "#888",
-                            marginTop: 4,
-                          }}
-                        >
-                          {date}
-                        </div>
-                      </td>
-
-                      <td style={tdStyle}>
-                        <select
-                          name={`session_type__${date}`}
-                          defaultValue={
-                            row?.session_type ??
-                            ""
-                          }
-                          style={smallInputStyle}
-                        >
-                          <option value="">
-                            未登録
-                          </option>
-
-                          {PERFORMANCE_SESSION_TYPES.map(
-                            (session) => (
-                              <option
-                                value={session}
-                                key={session}
-                              >
-                                {session}
-                              </option>
-                            ),
-                          )}
-                        </select>
-                      </td>
-
-                      <td style={tdStyle}>
-                        <input
-                          name={`venue_name__${date}`}
-                          defaultValue={
-                            row?.venue_name ??
-                            ""
-                          }
-                          placeholder="共通劇場なら空欄可"
-                          style={smallInputStyle}
-                        />
-                      </td>
-
-                      <td style={tdStyle}>
-                        <input
-                          name={`event_name__${date}`}
-                          defaultValue={
-                            row?.event_name ??
-                            ""
-                          }
-                          style={smallInputStyle}
-                        />
-                      </td>
-
-                      <td style={tdStyle}>
-                        <input
-                          name={`play_title__${date}`}
-                          defaultValue={
-                            row?.play_title ??
-                            ""
-                          }
-                          style={smallInputStyle}
-                        />
-                      </td>
-
-                      <td style={tdStyle}>
-                        <input
-                          name={`last_show_title__${date}`}
-                          defaultValue={
-                            row?.last_show_title ??
-                            ""
-                          }
-                          style={smallInputStyle}
-                        />
-                      </td>
-
-                      <td style={tdStyle}>
-                        <input
-                          name={`night_show_title__${date}`}
-                          defaultValue={
-                            row?.night_show_title ??
-                            ""
-                          }
-                          style={smallInputStyle}
-                        />
-                      </td>
-
-                      <td
-                        style={{
-                          ...tdStyle,
-                          textAlign: "center",
-                        }}
-                      >
-                        <input
-                          type="checkbox"
-                          name={`has_first_part__${date}`}
-                          defaultChecked={Boolean(
-                            row?.has_first_part,
-                          )}
-                        />
-                      </td>
-
-                      <td
-                        style={{
-                          ...tdStyle,
-                          textAlign: "center",
-                        }}
-                      >
-                        <input
-                          type="checkbox"
-                          name={`is_public__${date}`}
-                          defaultChecked={
-                            row
-                              ? row.is_public !==
-                                false
-                              : true
-                          }
-                        />
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+          <BulkPerformanceEditor
+            dates={dates}
+            rows={existingRows}
+          />
 
           <div
             style={{
@@ -887,30 +710,8 @@ const inputStyle = {
   fontSize: 15,
 };
 
-const smallInputStyle = {
-  width: "100%",
-  minWidth: 150,
-  boxSizing: "border-box" as const,
-  padding: "9px 10px",
-  border: "1px solid #3a342c",
-  background: "#080706",
-  color: "#eee7dc",
-};
 
-const thStyle = {
-  padding: "12px 10px",
-  textAlign: "left" as const,
-  background: "#17130d",
-  borderBottom: "1px solid #3a342c",
-  color: "#d9ad3d",
-  whiteSpace: "nowrap" as const,
-};
 
-const tdStyle = {
-  padding: 8,
-  borderBottom: "1px solid #302b24",
-  verticalAlign: "top" as const,
-};
 
 const navButtonStyle = {
   display: "inline-block",
