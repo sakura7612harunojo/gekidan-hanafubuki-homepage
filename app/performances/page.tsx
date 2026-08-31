@@ -1,329 +1,334 @@
+import type { Metadata } from "next";
+
+import { Header } from "@/components/Header";
+import {
+  PerformanceCard,
+  type Performance,
+} from "@/components/PerformanceCard";
+import { createClient } from "@/lib/supabase/server";
+
 export const metadata: Metadata = {
-  title: { absolute: "公演予定｜劇団花吹雪" },
-  description: "劇団花吹雪の公演予定。公演日、劇場、芝居、ラストショー、イベント・ゲスト情報を掲載しています。",
-  alternates: { canonical: "/performances" },
-  openGraph: { type:"website", locale:"ja_JP", url:"/performances", siteName:"劇団花吹雪", title:"公演予定｜劇団花吹雪", description:"劇団花吹雪の公演予定。公演日、劇場、芝居、ラストショー、イベント・ゲスト情報を掲載しています。", images:[{url:"/opengraph-image",width:1200,height:630,alt:"劇団花吹雪"}] },
-  twitter: { card:"summary_large_image", title:"公演予定｜劇団花吹雪", description:"劇団花吹雪の公演予定。公演日、劇場、芝居、ラストショー、イベント・ゲスト情報を掲載しています。", images:["/opengraph-image"] },
+  title: {
+    absolute: "公演予定 | 劇団花吹雪",
+  },
+  description:
+    "劇団花吹雪の公演予定。公演日、劇場、芝居、ラストショー、イベント・ゲスト情報を掲載しています。",
+  alternates: {
+    canonical: "/performances",
+  },
 };
 
-import type { Metadata } from "next";
-import { Header } from "@/components/Header";
-import { PerformanceCard, type Performance } from "@/components/PerformanceCard";
-import { createClient } from "@/lib/supabase/server";
-import { getJapanDateParts } from "@/lib/date";
+export const dynamic = "force-dynamic";
 
+function getJapanToday() {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Tokyo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date());
 
-const AUGUST_2026_FALLBACK = [
-  {
-    id: "fallback-0801",
-    performance_date: "2026-08-01",
-    venue_name: "三吉演芸場",
-    session_type: "昼・夜",
-    event_name: "初日",
-    play_title: "昼：花笠文治／夜：釣忍",
-    last_show_title: "CALL CALL CALL!",
-  },
-  {
-    id: "fallback-0802",
-    performance_date: "2026-08-02",
-    venue_name: "三吉演芸場",
-    session_type: "昼・夜",
-    event_name: null,
-    play_title: "昼：鼠小僧と白鷺銀次／夜：江戸の華",
-    last_show_title: "BLIZZARD",
-  },
-  {
-    id: "fallback-0803",
-    performance_date: "2026-08-03",
-    venue_name: "三吉演芸場",
-    session_type: "休演",
-    event_name: "休演日",
-    play_title: null,
-    last_show_title: null,
-  },
-  {
-    id: "fallback-0804",
-    performance_date: "2026-08-04",
-    venue_name: "三吉演芸場",
-    session_type: "昼・夜",
-    event_name: null,
-    play_title: "源太の情け",
-    last_show_title: "サンバDEわっしょい",
-  },
-  {
-    id: "fallback-0805",
-    performance_date: "2026-08-05",
-    venue_name: "三吉演芸場",
-    session_type: "昼・夜",
-    event_name: null,
-    play_title: "盲目の剣士",
-    last_show_title: "真夜中過ぎの恋",
-  },
-  {
-    id: "fallback-0806",
-    performance_date: "2026-08-06",
-    venue_name: "三吉演芸場",
-    session_type: "昼・夜",
-    event_name: null,
-    play_title: "月の浜町岸",
-    last_show_title: "俺は最高",
-  },
-  {
-    id: "fallback-0807",
-    performance_date: "2026-08-07",
-    venue_name: "三吉演芸場",
-    session_type: "昼・夜",
-    event_name: null,
-    play_title: "小鉄と金五郎",
-    last_show_title: "鬼の宴",
-  },
-  {
-    id: "fallback-0808",
-    performance_date: "2026-08-08",
-    venue_name: "三吉演芸場",
-    session_type: "昼・夜",
-    event_name: "花吹雪レビュー",
-    play_title: "昼：波止場の狼／夜：瞼の母",
-    last_show_title: "Beautiful Gorgeous Love",
-  },
-  {
-    id: "fallback-0809",
-    performance_date: "2026-08-09",
-    venue_name: "三吉演芸場",
-    session_type: "昼一回",
-    event_name: "春＆京祭り（1部女舞踊・3部男舞踊）",
-    play_title: "河内の兄弟",
-    last_show_title: "夢神輿",
-  },
-  {
-    id: "fallback-0810",
-    performance_date: "2026-08-10",
-    venue_name: "三吉演芸場",
-    session_type: "休演",
-    event_name: "休演日",
-    play_title: null,
-    last_show_title: null,
-  },
-  {
-    id: "fallback-0811",
-    performance_date: "2026-08-11",
-    venue_name: "三吉演芸場",
-    session_type: "昼・夜",
-    event_name: null,
-    play_title: "昼：かんざし／夜：千の風になって",
-    last_show_title: "JUST BEGUN",
-  },
-  {
-    id: "fallback-0812",
-    performance_date: "2026-08-12",
-    venue_name: "三吉演芸場",
-    session_type: "昼・夜",
-    event_name: null,
-    play_title: "黒船ヤクザ",
-    last_show_title: "阿国恋姿",
-  },
-  {
-    id: "fallback-0813",
-    performance_date: "2026-08-13",
-    venue_name: "三吉演芸場",
-    session_type: "昼・夜",
-    event_name: null,
-    play_title: "上州土産百両首",
-    last_show_title: "PAN DE MIC",
-  },
-  {
-    id: "fallback-0814",
-    performance_date: "2026-08-14",
-    venue_name: "三吉演芸場",
-    session_type: "昼・夜",
-    event_name: null,
-    play_title: "人生無情",
-    last_show_title: "男道",
-  },
-  {
-    id: "fallback-0815",
-    performance_date: "2026-08-15",
-    venue_name: "三吉演芸場",
-    session_type: "昼・夜",
-    event_name: "浴衣祭り",
-    play_title: "昼：馬の足玉三郎／夜：太助と家光",
-    last_show_title: "夏祭り",
-  },
-  {
-    id: "fallback-0816",
-    performance_date: "2026-08-16",
-    venue_name: "三吉演芸場",
-    session_type: "昼・夜",
-    event_name: null,
-    play_title: "昼：華の舞／夜：幸助餅",
-    last_show_title: "DANCE DANCE DANCE",
-  },
-  {
-    id: "fallback-0817",
-    performance_date: "2026-08-17",
-    venue_name: "三吉演芸場",
-    session_type: "休演",
-    event_name: "休演日",
-    play_title: null,
-    last_show_title: null,
-  },
-  {
-    id: "fallback-0818",
-    performance_date: "2026-08-18",
-    venue_name: "三吉演芸場",
-    session_type: "昼・夜",
-    event_name: null,
-    play_title: "八咫烏の政",
-    last_show_title: "博多人形",
-  },
-  {
-    id: "fallback-0819",
-    performance_date: "2026-08-19",
-    venue_name: "三吉演芸場",
-    session_type: "昼・夜",
-    event_name: null,
-    play_title: "笹川の花会",
-    last_show_title: "SHIRANAMI",
-  },
-  {
-    id: "fallback-0820",
-    performance_date: "2026-08-20",
-    venue_name: "三吉演芸場",
-    session_type: "昼・夜",
-    event_name: null,
-    play_title: "喧嘩屋の恋",
-    last_show_title: "愛の言霊",
-  },
-  {
-    id: "fallback-0821",
-    performance_date: "2026-08-21",
-    venue_name: "三吉演芸場",
-    session_type: "昼・夜",
-    event_name: null,
-    play_title: "江戸の十手風",
-    last_show_title: "月影舞華",
-  },
-  {
-    id: "fallback-0822",
-    performance_date: "2026-08-22",
-    venue_name: "三吉演芸場",
-    session_type: "昼・夜",
-    event_name: null,
-    play_title: "昼：恩愛二つ星／夜：刺青奇遇",
-    last_show_title: "シャナナ",
-  },
-  {
-    id: "fallback-0823",
-    performance_date: "2026-08-23",
-    venue_name: "三吉演芸場",
-    session_type: "昼・夜",
-    event_name: "花吹雪祭り",
-    play_title: "昼：神奈川水滸伝／夜：三人吉三",
-    last_show_title: "ジパングの風",
-  },
-  {
-    id: "fallback-0824",
-    performance_date: "2026-08-24",
-    venue_name: "三吉演芸場",
-    session_type: "休演",
-    event_name: "休演日",
-    play_title: null,
-    last_show_title: null,
-  },
-  {
-    id: "fallback-0825",
-    performance_date: "2026-08-25",
-    venue_name: "三吉演芸場",
-    session_type: "昼・夜",
-    event_name: null,
-    play_title: "雪の夜話",
-    last_show_title: "権八小紫",
-  },
-  {
-    id: "fallback-0826",
-    performance_date: "2026-08-26",
-    venue_name: "三吉演芸場",
-    session_type: "昼・夜",
-    event_name: null,
-    play_title: "故郷の峠",
-    last_show_title: "伊達政宗",
-  },
-  {
-    id: "fallback-0827",
-    performance_date: "2026-08-27",
-    venue_name: "三吉演芸場",
-    session_type: "昼・夜",
-    event_name: "TAILCOAT × GEISHA",
-    play_title: "下北の弥太郎",
-    last_show_title: "HANABI",
-  },
-  {
-    id: "fallback-0828",
-    performance_date: "2026-08-28",
-    venue_name: "三吉演芸場",
-    session_type: "昼・夜",
-    event_name: null,
-    play_title: "恋貫き候",
-    last_show_title: "飛行艇",
-  },
-  {
-    id: "fallback-0829",
-    performance_date: "2026-08-29",
-    venue_name: "三吉演芸場",
-    session_type: "昼一回",
-    event_name: "関東大千穐楽",
-    play_title: "流転兄弟花道",
-    last_show_title: "アミーゴ",
-  },
-] as unknown as Performance[];
+  const values = Object.fromEntries(
+    parts.map((part) => [part.type, part.value]),
+  );
 
-export const revalidate = 60;
+  return `${values.year}-${values.month}-${values.day}`;
+}
+
+function shiftMonth(month: string, amount: number) {
+  const [year, monthNumber] = month.split("-").map(Number);
+
+  const date = new Date(
+    Date.UTC(year, monthNumber - 1 + amount, 1),
+  );
+
+  return `${date.getUTCFullYear()}-${String(
+    date.getUTCMonth() + 1,
+  ).padStart(2, "0")}`;
+}
+
+function monthLabel(month: string, currentYear: string) {
+  const [year, monthNumber] = month.split("-");
+
+  return year === currentYear
+    ? `${Number(monthNumber)}月`
+    : `${year}年${Number(monthNumber)}月`;
+}
 
 export default async function PerformancesPage() {
+  const today = getJapanToday();
+  const currentMonth = today.slice(0, 7);
+  const currentYear = today.slice(0, 4);
+  const nextMonth = shiftMonth(currentMonth, 1);
+
   const supabase = await createClient();
-  const today = getJapanDateParts();
-  const monthStart = `${today.year}-${String(today.month).padStart(2, "0")}-01`;
-  const rangeEndDate = new Date(Date.UTC(today.year, today.month + 1, 1));
-  const nextMonth = `${rangeEndDate.getUTCFullYear()}-${String(
-    rangeEndDate.getUTCMonth() + 1
-  ).padStart(2, "0")}-01`;
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("performances")
-    .select("id,performance_date,venue_name,session_type,event_name,play_title,last_show_title")
-    .gte("performance_date", monthStart)
-    .lt("performance_date", nextMonth)
-    .order("performance_date");
+    .select(
+      "id,performance_date,venue_name,session_type,event_name,play_title,last_show_title,night_show_title,has_first_part,is_public",
+    )
+    .eq("is_public", true)
+    .gte("performance_date", today)
+    .order("performance_date", {
+      ascending: true,
+    })
+    .limit(400);
 
-  const performances =
-    data && data.length > 0
-      ? (data as Performance[])
-      : today.year === 2026 && today.month === 8
-        ? AUGUST_2026_FALLBACK
-        : [];
+  if (error) {
+    console.error("Performances fetch error:", error.message);
+  }
+
+  const performances = (data ?? []) as Performance[];
+
+  const monthKeys = Array.from(
+    new Set(
+      performances.map((performance) =>
+        performance.performance_date.slice(0, 7),
+      ),
+    ),
+  );
+
+  const performancesByMonth = new Map<string, Performance[]>();
+
+  for (const month of monthKeys) {
+    performancesByMonth.set(
+      month,
+      performances.filter((performance) =>
+        performance.performance_date.startsWith(month),
+      ),
+    );
+  }
+
+  const currentMonthExists = monthKeys.includes(currentMonth);
+  const nextMonthExists = monthKeys.includes(nextMonth);
 
   return (
     <>
       <Header />
+
       <main>
         <section className="schedule-hero">
           <p className="eyebrow">PERFORMANCE SCHEDULE</p>
           <h1>公演予定</h1>
-          <p>今月・翌月の公演情報です。</p>
+          <p>劇団花吹雪の今後の公演予定をご案内します。</p>
         </section>
 
-        <section className="section schedule-section">
+        <section className="section">
           {performances.length > 0 ? (
-            <div className="performance-grid">
-              {performances.map((performance) => (
-                <PerformanceCard key={performance.id} performance={performance} />
-              ))}
-            </div>
+            <>
+              <nav
+                className="performance-month-navigation"
+                aria-label="公演予定の月選択"
+              >
+                <div className="performance-quick-links">
+                  {currentMonthExists ? (
+                    <a
+                      href={`#month-${currentMonth}`}
+                      className="performance-quick-button performance-quick-button-primary"
+                    >
+                      今月
+                    </a>
+                  ) : (
+                    <span className="performance-quick-button performance-quick-button-disabled">
+                      今月
+                    </span>
+                  )}
+
+                  {nextMonthExists ? (
+                    <a
+                      href={`#month-${nextMonth}`}
+                      className="performance-quick-button"
+                    >
+                      翌月
+                    </a>
+                  ) : (
+                    <span className="performance-quick-button performance-quick-button-disabled">
+                      翌月
+                    </span>
+                  )}
+                </div>
+
+                <div className="performance-month-tabs">
+                  {monthKeys.map((month) => (
+                    <a
+                      key={month}
+                      href={`#month-${month}`}
+                      className="performance-month-tab"
+                    >
+                      {monthLabel(month, currentYear)}
+                    </a>
+                  ))}
+                </div>
+              </nav>
+
+              <div className="performance-month-groups">
+                {monthKeys.map((month) => {
+                  const monthPerformances =
+                    performancesByMonth.get(month) ?? [];
+
+                  return (
+                    <section
+                      key={month}
+                      id={`month-${month}`}
+                      className="performance-month-section"
+                    >
+                      <div className="performance-month-heading">
+                        <span>{monthLabel(month, currentYear)}</span>
+                        <small>{monthPerformances.length}日分</small>
+                      </div>
+
+                      <div className="schedule-grid">
+                        {monthPerformances.map((performance) => (
+                          <PerformanceCard
+                            key={performance.id}
+                            performance={performance}
+                          />
+                        ))}
+                      </div>
+                    </section>
+                  );
+                })}
+              </div>
+            </>
           ) : (
-            <div className="empty-state">今月の公演情報はまだ登録されていません。</div>
+            <div className="empty-state">
+              <strong>現在、今後の公演予定はありません。</strong>
+              <p>
+                新しい予定が決まり次第、こちらでご案内します。
+              </p>
+            </div>
           )}
         </section>
       </main>
+
+      <style>{`
+        .performance-month-navigation {
+          position: sticky;
+          top: 0;
+          z-index: 20;
+          margin-bottom: 32px;
+          padding: 14px 0;
+          background: rgba(8, 7, 6, 0.96);
+        }
+
+        .performance-quick-links {
+          display: flex;
+          gap: 10px;
+          margin-bottom: 12px;
+        }
+
+        .performance-quick-button {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          min-width: 92px;
+          min-height: 46px;
+          padding: 0 18px;
+          border: 1px solid #d4a83d;
+          color: #eee7dc;
+          background: transparent;
+          font-weight: 700;
+          text-decoration: none;
+        }
+
+        .performance-quick-button-primary {
+          color: #080706;
+          background: #d9ad3d;
+        }
+
+        .performance-quick-button-disabled {
+          opacity: 0.35;
+        }
+
+        .performance-month-tabs {
+          display: flex;
+          gap: 8px;
+          overflow-x: auto;
+          padding: 2px 0 8px;
+          -webkit-overflow-scrolling: touch;
+        }
+
+        .performance-month-tab {
+          flex: 0 0 auto;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          min-width: 72px;
+          min-height: 42px;
+          padding: 0 15px;
+          border: 1px solid #4c4030;
+          background: #13110e;
+          color: #d9c18a;
+          font-weight: 700;
+          text-decoration: none;
+          white-space: nowrap;
+        }
+
+        .performance-month-section {
+          scroll-margin-top: 145px;
+          margin-bottom: 48px;
+        }
+
+        .performance-month-heading {
+          display: flex;
+          align-items: baseline;
+          gap: 12px;
+          margin: 0 0 18px;
+          padding-bottom: 10px;
+          border-bottom: 1px solid #3a342c;
+          color: #d9ad3d;
+        }
+
+        .performance-month-heading span {
+          font-size: 28px;
+          font-weight: 700;
+        }
+
+        .performance-month-heading small {
+          color: #8f877d;
+          font-size: 13px;
+        }
+
+        @media (max-width: 760px) {
+          .performance-month-navigation {
+            padding-top: 10px;
+          }
+
+          .performance-quick-links {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+          }
+
+          .performance-quick-button {
+            width: 100%;
+            min-width: 0;
+            box-sizing: border-box;
+            min-height: 50px;
+            font-size: 16px;
+          }
+
+          .performance-month-tabs {
+            gap: 7px;
+          }
+
+          .performance-month-tab {
+            min-width: 68px;
+            min-height: 44px;
+            padding: 0 14px;
+            font-size: 15px;
+          }
+
+          .performance-month-section {
+            scroll-margin-top: 150px;
+            margin-bottom: 38px;
+          }
+
+          .performance-month-heading span {
+            font-size: 24px;
+          }
+        }
+      `}</style>
     </>
   );
 }
