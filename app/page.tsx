@@ -115,12 +115,12 @@ export default async function HomePage() {
   const [{ data: todayData }, { data: upcomingData }, { data: members }, { data: works }, { data: galleryData }] = await Promise.all([
     supabase
       .from("performances")
-      .select("id,performance_date,venue_name,session_type,event_name,play_title,last_show_title")
+      .select("id,performance_date,venue_name,session_type,event_name,play_title,last_show_title,night_show_title")
       .eq("performance_date", today.iso)
       .maybeSingle(),
     supabase
       .from("performances")
-      .select("id,performance_date,venue_name,session_type,event_name,play_title,last_show_title")
+      .select("id,performance_date,venue_name,session_type,event_name,play_title,last_show_title,night_show_title")
       .gt("performance_date", today.iso)
       .order("performance_date")
       .limit(5),
