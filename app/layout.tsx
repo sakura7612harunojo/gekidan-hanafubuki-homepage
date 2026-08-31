@@ -1,3 +1,4 @@
+import BackToTopButton from "@/components/BackToTopButton";
 import type { Metadata } from "next";
 import "./globals.css";
 import GoogleAnalytics from "./google-analytics";
@@ -21,7 +22,8 @@ export default function RootLayout({
     <html lang="ja">
       <body>
         <GoogleAnalytics />
-{children}</body>
+{children}        <BackToTopButton />
+      </body>
     </html>
   );
 }

@@ -180,3 +180,22 @@ button, input, textarea, select { font: inherit; }
   .sidebar { display: none; }
   .content { padding: 22px; }
 }
+
+
+/* public-header-contrast */
+header {
+  color: #f5f0e6 !important;
+}
+
+header a,
+header nav a {
+  color: #f5f0e6 !important;
+  opacity: 1 !important;
+}
+
+header a:hover,
+header a:focus-visible,
+header nav a:hover,
+header nav a:focus-visible {
+  color: #e1b83f !important;
+}

@@ -185,7 +185,7 @@ export default async function PerformancesPage() {
                     >
                       <div className="performance-month-heading">
                         <span>{monthLabel(month, currentYear)}</span>
-                        <small>{monthPerformances.length}日分</small>
+                        <small>{(monthPerformances.length) > 0 ? `${monthPerformances.length}日分` : ""}</small>
                       </div>
 
                       {PERFORMANCE_VENUES[month] ? (
