@@ -12,6 +12,7 @@ import { PerformanceCard, type Performance } from "@/components/PerformanceCard"
 import { createClient as createPublicSupabaseClient } from "@supabase/supabase-js";
 import { getJapanDateParts } from "@/lib/date";
 
+import { NextPerformanceNotice } from "@/components/NextPerformanceNotice";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 const AUGUST_2026_TODAY_FALLBACK = {
@@ -173,7 +174,9 @@ export default async function HomePage() {
           {todayPerformance ? (
             <PerformanceCard performance={todayPerformance} featured />
           ) : (
-            <div className="empty-state">本日の公演情報はまだ登録されていません。</div>
+            <div className="empty-state">本日の公演情報はまだ登録されていません。
+              <NextPerformanceNotice />
+            </div>
           )}
         </section>
 
