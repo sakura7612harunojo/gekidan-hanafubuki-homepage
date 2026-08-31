@@ -38,6 +38,8 @@ async function createPerformance(formData: FormData) {
 
   if (error) throw new Error(error.message);
 
+
+
   revalidatePath("/");
   revalidatePath("/performances");
   revalidatePath("/admin/performances");
@@ -125,6 +127,45 @@ const gridStyle = {
   gap: 14,
 } as const;
 
+
+function getCurrentJapanMonth() {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Tokyo",
+    year: "numeric",
+    month: "2-digit",
+  }).formatToParts(new Date());
+
+  const values = Object.fromEntries(
+    parts.map((part) => [part.type, part.value]),
+  );
+
+  return `${values.year}-${values.month}`;
+}
+
+function sortPerformancesForAdmin<T extends { performance_date: string }>(
+  rows: T[],
+  currentMonth: string,
+) {
+  const group = (row: T) => {
+    const month = row.performance_date.slice(0, 7);
+    if (month === currentMonth) return 0;
+    if (month > currentMonth) return 1;
+    return 2;
+  };
+
+  return [...rows].sort((a, b) => {
+    const groupA = group(a);
+    const groupB = group(b);
+
+    if (groupA !== groupB) return groupA - groupB;
+    if (groupA === 2) {
+      return b.performance_date.localeCompare(a.performance_date);
+    }
+
+    return a.performance_date.localeCompare(b.performance_date);
+  });
+}
+
 export default async function PerformancesPage() {
   const supabase = await createClient();
 
@@ -134,6 +175,12 @@ export default async function PerformancesPage() {
     .order("performance_date", { ascending: true });
 
   if (error) throw new Error(error.message);
+
+  const currentMonth = getCurrentJapanMonth();
+  const sortedPerformances = sortPerformancesForAdmin(
+    performances ?? [],
+    currentMonth,
+  );
 
   return (
     <main
@@ -309,7 +356,7 @@ export default async function PerformancesPage() {
         <h2 style={{ marginBottom: 20 }}>登録済み公演</h2>
 
         <div style={{ display: "grid", gap: 14, maxWidth: 1100 }}>
-          {(performances ?? []).map((performance) => (
+          {sortedPerformances.map((performance) => (
             <form
               key={performance.id}
               action={updatePerformance}
