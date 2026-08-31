@@ -18,9 +18,9 @@ export const PERFORMANCE_VENUES:
     name: "天然温泉 おふろcafé 湯守座",
     address: "三重県四日市市生桑町311番地",
     tel: "059-332-2611",
-    reservationTel: "059-332-0489",
+    reservationTel: "059-332-0489\n公演日の10日前から受付。",
     access:
-      "近鉄四日市駅からアクセス。観劇予約は公演日の10日前から受付。",
+      "近鉄四日市駅からアクセス。",
     schedule: [
       "昼の部 12:30〜15:00",
       "夜の部 19:00〜20:00",

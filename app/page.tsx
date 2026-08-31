@@ -29,9 +29,9 @@ function venueFieldLabel(key: string) {
   if (normalized.includes("url") || normalized.includes("website") || normalized.includes("maplink")) return null;
   if (normalized === "name" || normalized === "title" || normalized.includes("venuename")) return "公演先";
   if (normalized.includes("address")) return "住所";
+  if (normalized.includes("reserv")) return "観劇予約";
   if (normalized.includes("phone") || normalized.includes("tel")) return "電話";
   if (normalized.includes("access")) return "アクセス";
-  if (normalized.includes("reserv")) return "観劇予約";
   if (normalized.includes("time") || normalized.includes("hour") || normalized.includes("schedule")) return "公演時間";
   if (normalized.includes("guide") || normalized.includes("notice") || normalized.includes("highlight")) return "今月のご案内";
   if (normalized === "day" || normalized.includes("lunch") || normalized.includes("noon")) return "昼";
