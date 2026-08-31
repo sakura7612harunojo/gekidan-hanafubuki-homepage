@@ -99,7 +99,36 @@ export function BulkPerformanceEditor({
           padding-top: 10px;
         }
 
-        @media (max-width: 760px) {
+        
+      /* HANABUKI_BULK_VISIBLE_LAYOUT
+         PCでも夜の部まで横に隠さず、1日分を3列カードで表示する。 */
+      .performance-header {
+        display: none;
+      }
+
+      .performance-list {
+        min-width: 0;
+      }
+
+      .performance-row {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        align-items: end;
+      }
+
+      .performance-field {
+        min-width: 0;
+      }
+
+      .field-label {
+        display: block;
+        margin-bottom: 6px;
+        color: #aaa29a;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+@media (max-width: 760px) {
           .bulk-editor {
             overflow: visible;
           }
