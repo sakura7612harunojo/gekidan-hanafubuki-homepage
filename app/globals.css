@@ -233,3 +233,76 @@ header nav a:focus-visible {
   }
 }
 
+
+/* HANABUKI_MOBILE_PUBLIC
+   公開サイトのスマホ表示専用。PC表示には影響しない。 */
+@media (max-width: 760px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  header {
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  header nav {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 8px 14px;
+  }
+
+  header nav a {
+    font-size: 13px;
+    line-height: 1.4;
+    white-space: nowrap;
+  }
+
+  main,
+  .content {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: hidden;
+  }
+
+  .content {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+
+  .section-heading {
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .performance-grid,
+  .upcoming-grid,
+  .members-grid,
+  .hanabuki-gallery-grid,
+  .grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .performance-card,
+  .card,
+  .hanabuki-gallery-card {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  img {
+    display: block;
+    max-width: 100%;
+    height: auto !important;
+    aspect-ratio: auto !important;
+    object-fit: contain !important;
+  }
+}
