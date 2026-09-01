@@ -230,7 +230,16 @@ export default async function HomePage() {
       <Header />
       <main>
         <section className="hero">
-</section>
+          <div className="hero-content">
+            <p>GEKIDAN HANAFUBUKI</p>
+            <h1>劇団花吹雪</h1>
+            <p className="lead">華やかな舞踊と、人の情を描く芝居。劇場でしか味わえない舞台をお届けします。</p>
+            <div className="actions">
+              <a className="btn primary" href="#today">本日の公演</a>
+              <a className="btn" href="/performances">公演予定</a>
+            </div>
+          </div>
+        </section>
 
         <section className="section today-section" id="today">
           <div className="section-heading">
