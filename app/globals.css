@@ -199,3 +199,37 @@ header nav a:hover,
 header nav a:focus-visible {
   color: #e1b83f !important;
 }
+
+/* HANABUKI_HOME_GALLERY */
+.hanabuki-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  width: 100%;
+}
+
+.hanabuki-gallery-card {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid #302b24;
+  background: #13110e;
+  overflow: hidden;
+}
+
+.hanabuki-gallery-card img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+@media (max-width: 760px) {
+  .hanabuki-gallery-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .hanabuki-gallery-card {
+    padding: 12px;
+  }
+}
+

@@ -365,16 +365,15 @@ export default async function HomePage() {
           </div>
         </div>
         {(galleryData ?? []).length > 0 ? (
-          <div className="grid">
+          <div className="hanabuki-gallery-grid">
             {(galleryData ?? []).map((photo) => (
-              <article className="card" key={photo.id}>
+              <article className="hanabuki-gallery-card" key={photo.id}>
                 <img
                   src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/gallery/${photo.storage_path}`}
                   alt={photo.title || "投稿写真"}
                   style={{ width: "100%", height: "auto", display: "block" }}
                 />
-                <h3>{photo.title || "投稿写真"}</h3>
-              </article>
+                </article>
             ))}
           </div>
         ) : (
