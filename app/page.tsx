@@ -238,6 +238,12 @@ export default async function HomePage() {
               <a className="btn primary" href="#today">本日の公演</a>
               <a className="btn" href="/performances">公演予定</a>
             </div>
+          <img
+            src="/images/harunojo-signature.png"
+            alt="桜春之丞 サイン"
+            className="hero-signature"
+          />
+
           </div>
         </section>
 
