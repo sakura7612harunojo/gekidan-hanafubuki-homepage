@@ -196,7 +196,7 @@ export default async function HomePage() {
       .gt("performance_date", today.iso)
       .order("performance_date")
       .limit(5),
-    supabase.from("members").select("*").eq("is_public", true).order("sort_order"),
+    supabase.from("members").select("*,photo_path").eq("is_public", true).order("sort_order"),
     supabase.from("works").select("*").eq("is_public", true).order("title").limit(6),
     supabase
       .from("gallery")
@@ -419,6 +419,21 @@ export default async function HomePage() {
                 ]
             ).map((member) => (
               <article className="card" key={member.id}>
+                {member.photo_path ? (
+                  <img
+                    src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/gallery/${member.photo_path}`}
+                    alt={`${member.stage_name}の写真`}
+                    style={{
+                      display: "block",
+                      width: "100%",
+                      aspectRatio: "4 / 5",
+                      objectFit: "cover",
+                      objectPosition: "top center",
+                      marginBottom: 18,
+                      border: "1px solid #302b24",
+                    }}
+                  />
+                ) : null}
                 <small>{member.role_name}</small>
                 <h3>{member.stage_name}</h3>
                 {member.profile && member.profile !== "プロフィール準備中" && <p>{member.profile}</p>}

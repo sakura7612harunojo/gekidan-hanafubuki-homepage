@@ -40,7 +40,7 @@ async function updateMember(formData: FormData) {
 
   const { data: current, error: currentError } = await supabase
     .from("members")
-    .select("role_name,profile")
+    .select("role_name,profile,photo_path")
     .eq("id", id)
     .single();
 
@@ -81,12 +81,66 @@ async function deleteMember(formData: FormData) {
   revalidatePath("/");
 }
 
+
+async function updateMemberPhoto(formData: FormData) {
+  "use server";
+
+  const memberId = String(formData.get("member_id") ?? "");
+  const photo = formData.get("member_photo");
+
+  if (!memberId) {
+    throw new Error("劇団員IDがありません。");
+  }
+
+  if (!(photo instanceof File) || photo.size === 0) {
+    throw new Error("写真を選択してください。");
+  }
+
+  if (!photo.type.startsWith("image/")) {
+    throw new Error("画像ファイルを選択してください。");
+  }
+
+  if (photo.size > 10 * 1024 * 1024) {
+    throw new Error("写真は10MB以下にしてください。");
+  }
+
+  const supabase = await createClient();
+  const safeName = (photo.name || "member-photo")
+    .replace(/[^a-zA-Z0-9._-]/g, "-")
+    .replace(/-+/g, "-");
+  const photoPath = `members/${memberId}/${Date.now()}-${safeName}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from("gallery")
+    .upload(photoPath, photo, {
+      contentType: photo.type,
+      upsert: false,
+    });
+
+  if (uploadError) {
+    throw new Error(uploadError.message);
+  }
+
+  const { error: updateError } = await supabase
+    .from("members")
+    .update({ photo_path: photoPath })
+    .eq("id", memberId);
+
+  if (updateError) {
+    await supabase.storage.from("gallery").remove([photoPath]);
+    throw new Error(updateError.message);
+  }
+
+  revalidatePath("/");
+  revalidatePath("/admin/members");
+}
+
 export default async function MembersPage() {
   const supabase = await createClient();
 
   const { data } = await supabase
     .from("members")
-    .select("id,stage_name,role_name,profile,sort_order,is_public")
+    .select("id,stage_name,role_name,profile,sort_order,is_public,photo_path")
     .order("sort_order")
     .order("stage_name");
 
@@ -225,7 +279,49 @@ export default async function MembersPage() {
                       削除
                     </AdminSubmitButton>
                   </form>
-                </article>
+                
+                {member.photo_path ? (
+                  <img
+                    src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/gallery/${member.photo_path}`}
+                    alt={`${member.stage_name}の写真`}
+                    style={{
+                      display: "block",
+                      width: "100%",
+                      maxWidth: 320,
+                      height: "auto",
+                      marginTop: 18,
+                      border: "1px solid #39342c",
+                    }}
+                  />
+                ) : (
+                  <p style={{ marginTop: 18, color: "#aaa29a" }}>写真未登録</p>
+                )}
+
+                <form
+                  action={updateMemberPhoto}
+                  style={{
+                    ...formStyle,
+                    marginTop: 18,
+                    paddingTop: 18,
+                    borderTop: "1px solid #302b24",
+                  }}
+                >
+                  <input type="hidden" name="member_id" value={member.id} />
+                  <label>
+                    写真
+                    <input
+                      name="member_photo"
+                      type="file"
+                      accept="image/*"
+                      required
+                      style={inputStyle}
+                    />
+                  </label>
+                  <AdminSubmitButton pendingLabel="保存中…" style={goldButton}>
+                    写真を保存
+                  </AdminSubmitButton>
+                </form>
+</article>
               ))}
             </div>
           )}
