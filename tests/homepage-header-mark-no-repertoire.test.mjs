@@ -17,12 +17,7 @@ test("演目紹介を消したのでヘッダーの演目リンクも外す", ()
 });
 
 test("ヘッダーの劇団花吹雪の横に春マークを置く", () => {
-  assert.match(header, /brand-with-mark/);
-  assert.match(header, /\/images\/hanabuki-haru-mark\.png/);
-  assert.match(header, /header-brand-mark/);
-});
-
-test("春マークは小さく横並びで表示する", () => {
-  assert.match(css, /\.brand-with-mark\s*\{[\s\S]*?display:\s*flex[\s\S]*?align-items:\s*center/);
-  assert.match(css, /\.header-brand-mark\s*\{[\s\S]*?width:\s*3[02468]px[\s\S]*?height:\s*3[02468]px/);
+  assert.doesNotMatch(header, /brand-with-mark/);
+  assert.doesNotMatch(header, /brand-with-mark/);
+  assert.doesNotMatch(css, /\.header-brand-mark/);
 });

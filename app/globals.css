@@ -561,32 +561,6 @@ body:has(.header) footer {
   }
 }
 
-/* HANABUKI_HEADER_HARU_MARK */
-.brand-with-mark {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-}
-
-.header-brand-mark {
-  display: block;
-  width: 34px;
-  height: 34px;
-  object-fit: contain;
-  flex: 0 0 auto;
-}
-
-@media (max-width: 760px) {
-  .brand-with-mark {
-    gap: 7px;
-  }
-
-  .header-brand-mark {
-    width: 30px;
-    height: 30px;
-  }
-}
 
 /* HANABUKI_CAST_SIGNATURE */
 .cast-heading-with-signature {
@@ -614,6 +588,36 @@ body:has(.header) footer {
 
   .cast-heading-signature {
     width: min(150px, 42vw);
+  }
+}
+
+/* HANABUKI_HERO_HARU_MARK */
+.hero-title-with-mark {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: nowrap;
+}
+
+.hero-title-with-mark h1 {
+  margin: 0;
+}
+
+.hero-title-mark {
+  display: block;
+  width: clamp(96px, 9vw, 120px);
+  height: auto;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
+
+@media (max-width: 760px) {
+  .hero-title-with-mark {
+    gap: 12px;
+  }
+
+  .hero-title-mark {
+    width: 72px;
   }
 }
 
