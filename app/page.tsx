@@ -171,6 +171,16 @@ const AUGUST_2026_TODAY_FALLBACK = {
   },
 } as unknown as Record<string, Performance>;
 
+function getCastRoleRank(roleName: string | null | undefined) {
+  const role = roleName ?? "";
+  if (role.includes("座長")) return 0;
+  if (role.includes("花形")) return 1;
+  if (role.includes("劇団員")) return 2;
+  if (role.includes("サポート")) return 3;
+  if (role.includes("裏方")) return 4;
+  return 99;
+}
+
 export default async function HomePage() {
   const supabase = createPublicSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -420,7 +430,7 @@ export default async function HomePage() {
                 alt="桜春之丞 サイン"
               />
             </div>
-          <div className="grid">
+          <div className="grid members-grid">
             {((members && members.length > 0)
               ? members
               : [
@@ -431,8 +441,8 @@ export default async function HomePage() {
                     profile: "劇団花吹雪 座長",
                   },
                 ]
-            ).map((member) => (
-              <article className="card" key={member.id}>
+            ).slice().sort((a, b) => getCastRoleRank(a.role_name) - getCastRoleRank(b.role_name)).map((member) => (
+              <article className="card member-card" key={member.id}>
                 {member.photo_path ? (
                   <img
                     src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/gallery/${member.photo_path}`}

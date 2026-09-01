@@ -621,3 +621,23 @@ body:has(.header) footer {
   }
 }
 
+/* HANABUKI_CAST_COMPACT_LAYOUT */
+.members-grid {
+  display: flex !important;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.members-grid .member-card {
+  flex: 0 0 calc((100% - 28px) / 3);
+  align-self: flex-start;
+  min-height: 0;
+}
+
+@media (max-width: 760px) {
+  .members-grid .member-card {
+    flex-basis: 100%;
+  }
+}
+
