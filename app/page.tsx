@@ -448,60 +448,7 @@ export default async function HomePage() {
           </div>
         </section>
 
-        <section className="section" id="repertoire">
-          <p className="eyebrow">REPERTOIRE</p>
-          <h2>演目紹介</h2>
-          <div className="grid">
-            {((works && works.length > 0)
-              ? works
-              : [
-                  {
-                    id: "fallback-work-1",
-                    work_type: "芝居",
-                    title: "江戸の十手風",
-                    summary: null,
-                  },
-                  {
-                    id: "fallback-work-2",
-                    work_type: "舞踊",
-                    title: "月影舞華",
-                    summary: null,
-                  },
-                  {
-                    id: "fallback-work-3",
-                    work_type: "芝居",
-                    title: "河内の兄弟",
-                    summary: null,
-                  },
-                  {
-                    id: "fallback-work-4",
-                    work_type: "舞踊",
-                    title: "夢神輿",
-                    summary: null,
-                  },
-                  {
-                    id: "fallback-work-5",
-                    work_type: "芝居",
-                    title: "下北の弥太郎",
-                    summary: null,
-                  },
-                  {
-                    id: "fallback-work-6",
-                    work_type: "舞踊",
-                    title: "HANABI",
-                    summary: null,
-                  },
-                ]
-            ).map((work) => (
-              <article className="card" key={work.id}>
-                <small>{work.work_type}</small>
-                <h3>{work.title}</h3>
-                {work.summary && work.summary !== "作品紹介準備中" && <p>{work.summary}</p>}
-              </article>
-            ))}
-          </div>
-        </section>
-      </main>
+</main>
     </>
   );
 }

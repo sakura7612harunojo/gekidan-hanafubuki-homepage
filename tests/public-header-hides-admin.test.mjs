@@ -9,10 +9,10 @@ test("公開ヘッダーに管理画面リンクを表示しない", () => {
   assert.doesNotMatch(header, />\s*管理画面\s*</);
 });
 
-test("公開ヘッダーの主要リンクは残す", () => {
+test("公開ヘッダーの必要な主要リンクは残し演目リンクは出さない", () => {
   assert.match(header, /本日の公演/);
   assert.match(header, /公演予定/);
   assert.match(header, /劇団員/);
-  assert.match(header, /演目/);
+  assert.doesNotMatch(header, /演目/);
   assert.match(header, /お知らせ/);
 });

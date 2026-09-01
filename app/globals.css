@@ -561,3 +561,30 @@ body:has(.header) footer {
   }
 }
 
+/* HANABUKI_HEADER_HARU_MARK */
+.brand-with-mark {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.header-brand-mark {
+  display: block;
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
+
+@media (max-width: 760px) {
+  .brand-with-mark {
+    gap: 7px;
+  }
+
+  .header-brand-mark {
+    width: 30px;
+    height: 30px;
+  }
+}
+
