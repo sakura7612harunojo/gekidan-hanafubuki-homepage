@@ -588,3 +588,32 @@ body:has(.header) footer {
   }
 }
 
+/* HANABUKI_CAST_SIGNATURE */
+.cast-heading-with-signature {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.cast-heading-with-signature h2 {
+  margin: 0;
+}
+
+.cast-heading-signature {
+  display: block;
+  width: min(220px, 28vw);
+  height: auto;
+  object-fit: contain;
+}
+
+@media (max-width: 760px) {
+  .cast-heading-with-signature {
+    gap: 12px;
+  }
+
+  .cast-heading-signature {
+    width: min(150px, 42vw);
+  }
+}
+

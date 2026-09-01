@@ -230,22 +230,7 @@ export default async function HomePage() {
       <Header />
       <main>
         <section className="hero">
-          <div className="hero-content">
-            <p>GEKIDAN HANAFUBUKI</p>
-            <h1>劇団花吹雪</h1>
-            <p className="lead">華やかな舞踊と、人の情を描く芝居。劇場でしか味わえない舞台をお届けします。</p>
-            <div className="actions">
-              <a className="btn primary" href="#today">本日の公演</a>
-              <a className="btn" href="/performances">公演予定</a>
-            </div>
-          <img
-            src="/images/harunojo-signature.png"
-            alt="桜春之丞 サイン"
-            className="hero-signature"
-          />
-
-          </div>
-        </section>
+</section>
 
         <section className="section today-section" id="today">
           <div className="section-heading">
@@ -411,7 +396,14 @@ export default async function HomePage() {
 
         <section className="section" id="cast">
           <p className="eyebrow">CAST</p>
-          <h2>劇団員紹介</h2>
+          <div className="cast-heading-with-signature">
+              <h2>劇団員紹介</h2>
+              <img
+                className="cast-heading-signature"
+                src="/images/harunojo-signature.png"
+                alt="桜春之丞 サイン"
+              />
+            </div>
           <div className="grid">
             {((members && members.length > 0)
               ? members
