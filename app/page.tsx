@@ -292,6 +292,61 @@ export default async function HomePage() {
                   </div>
                 ))}
               </div>
+
+              {(currentVenue.websiteUrl || currentVenue.mapUrl) ? (
+                <div
+                  style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: "12px",
+                    marginTop: "20px",
+                    paddingTop: "20px",
+                    borderTop: "1px solid #302b24",
+                  }}
+                >
+                  {currentVenue.websiteUrl ? (
+                    <a
+                      href={currentVenue.websiteUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        minHeight: "44px",
+                        padding: "0 18px",
+                        border: "1px solid #c79c38",
+                        color: "#f2dfac",
+                        textDecoration: "none",
+                        fontWeight: 700,
+                      }}
+                    >
+                      公式サイト
+                    </a>
+                  ) : null}
+
+                  {currentVenue.mapUrl ? (
+                    <a
+                      href={currentVenue.mapUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        minHeight: "44px",
+                        padding: "0 18px",
+                        border: "1px solid #c79c38",
+                        color: "#f2dfac",
+                        textDecoration: "none",
+                        fontWeight: 700,
+                      }}
+                    >
+                      地図を見る
+                    </a>
+                  ) : null}
+                </div>
+              ) : null}
             </div>
           ) : (
             <div className="empty-state">
