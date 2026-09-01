@@ -468,3 +468,75 @@ body:has(.header) footer {
   }
 }
 
+/* HANABUKI_SAKURA_PETALS */
+.sakura-petals-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.sakura-petal {
+  position: absolute;
+  top: -10vh;
+  width: 12px;
+  height: 9px;
+  border-radius: 75% 0 75% 0;
+  background: rgba(245, 190, 205, 0.78);
+  box-shadow: 0 0 5px rgba(255, 220, 230, 0.22);
+  animation-name: sakura-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform;
+}
+
+.sakura-petal:nth-child(1)  { left: 3%;  animation-duration: 12s; animation-delay: -2s;  opacity: .70; }
+.sakura-petal:nth-child(2)  { left: 11%; animation-duration: 15s; animation-delay: -9s;  opacity: .55; }
+.sakura-petal:nth-child(3)  { left: 19%; animation-duration: 11s; animation-delay: -5s;  opacity: .80; }
+.sakura-petal:nth-child(4)  { left: 28%; animation-duration: 16s; animation-delay: -12s; opacity: .50; }
+.sakura-petal:nth-child(5)  { left: 36%; animation-duration: 13s; animation-delay: -7s;  opacity: .72; }
+.sakura-petal:nth-child(6)  { left: 44%; animation-duration: 18s; animation-delay: -15s; opacity: .45; }
+.sakura-petal:nth-child(7)  { left: 52%; animation-duration: 12s; animation-delay: -4s;  opacity: .75; }
+.sakura-petal:nth-child(8)  { left: 61%; animation-duration: 17s; animation-delay: -13s; opacity: .55; }
+.sakura-petal:nth-child(9)  { left: 69%; animation-duration: 14s; animation-delay: -8s;  opacity: .78; }
+.sakura-petal:nth-child(10) { left: 76%; animation-duration: 19s; animation-delay: -16s; opacity: .48; }
+.sakura-petal:nth-child(11) { left: 83%; animation-duration: 13s; animation-delay: -3s;  opacity: .68; }
+.sakura-petal:nth-child(12) { left: 90%; animation-duration: 16s; animation-delay: -11s; opacity: .58; }
+.sakura-petal:nth-child(13) { left: 96%; animation-duration: 12s; animation-delay: -6s;  opacity: .72; }
+.sakura-petal:nth-child(14) { left: 58%; animation-duration: 20s; animation-delay: -18s; opacity: .40; }
+
+.sakura-petal:nth-child(3n) {
+  width: 9px;
+  height: 7px;
+}
+
+.sakura-petal:nth-child(4n) {
+  width: 15px;
+  height: 11px;
+}
+
+@keyframes sakura-fall {
+  0% {
+    transform: translate3d(0, -12vh, 0) rotate(0deg);
+  }
+  25% {
+    transform: translate3d(24px, 25vh, 0) rotate(95deg);
+  }
+  50% {
+    transform: translate3d(-16px, 52vh, 0) rotate(190deg);
+  }
+  75% {
+    transform: translate3d(32px, 78vh, 0) rotate(285deg);
+  }
+  100% {
+    transform: translate3d(-12px, 112vh, 0) rotate(380deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sakura-petals-layer {
+    display: none;
+  }
+}
+
