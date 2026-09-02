@@ -9,6 +9,7 @@ import {
 } from "@/components/PerformanceCard";
 import { createClient } from "@/lib/supabase/server";
 
+import { getPerformanceVenueMap } from "@/lib/performance-venue-cms";
 export const metadata: Metadata = {
   title: {
     absolute: "公演予定 | 劇団花吹雪",
@@ -58,6 +59,8 @@ function monthLabel(month: string, currentYear: string) {
 }
 
 export default async function PerformancesPage() {
+  const performanceVenues = await getPerformanceVenueMap();
+
   const today = getJapanToday();
   const currentMonth = today.slice(0, 7);
   const currentYear = today.slice(0, 4);
@@ -89,7 +92,7 @@ export default async function PerformancesPage() {
   );
 
   const venueMonths = Object.keys(
-    PERFORMANCE_VENUES,
+    performanceVenues,
   ).filter((month) => month >= currentMonth);
 
   const monthKeys = Array.from(
@@ -112,7 +115,6 @@ export default async function PerformancesPage() {
 
   const currentMonthExists = monthKeys.includes(currentMonth);
   const nextMonthExists = monthKeys.includes(nextMonth);
-
   return (
     <>
       <Header />
@@ -121,6 +123,22 @@ export default async function PerformancesPage() {
         <section className="schedule-hero">
           <p className="eyebrow">PERFORMANCE SCHEDULE</p>
           <h1>公演予定</h1>
+        <div
+          data-hanabuki-public-notice
+          style={{
+            margin: "14px 0 24px",
+            padding: "14px 16px",
+            border: "1px solid #ead8dc",
+            background: "rgba(255,255,255,0.68)",
+            color: "#72545b",
+            fontSize: "13px",
+            lineHeight: 1.8,
+          }}
+        >
+          <div>※演目・出演者・公演内容は、都合により予告なく変更となる場合がございます。</div>
+          <div>※終演時間は公演内容により異なります。</div>
+        </div>
+
           <p>劇団花吹雪の今後の公演予定をご案内します。</p>
         </section>
 
@@ -188,9 +206,9 @@ export default async function PerformancesPage() {
                         <small>{(monthPerformances.length) > 0 ? `${monthPerformances.length}日分` : ""}</small>
                       </div>
 
-                      {PERFORMANCE_VENUES[month] ? (
+                      {performanceVenues[month] ? (
                         <PerformanceVenueCard
-                          venue={PERFORMANCE_VENUES[month]}
+                          venue={performanceVenues[month]}
                         />
                       ) : null}
 

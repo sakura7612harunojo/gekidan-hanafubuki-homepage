@@ -14,6 +14,7 @@ import { getJapanDateParts } from "@/lib/date";
 
 import { NextPerformanceNotice } from "@/components/NextPerformanceNotice";
 import { PERFORMANCE_VENUES } from "@/lib/performance-venues";
+import { getPerformanceVenueForMonth } from "@/lib/performance-venue-cms";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
@@ -231,8 +232,7 @@ export default async function HomePage() {
 
 
   const currentMonth = today.iso.slice(0, 7);
-  const currentVenue =
-    PERFORMANCE_VENUES[currentMonth as keyof typeof PERFORMANCE_VENUES];
+  const currentVenue = await getPerformanceVenueForMonth(currentMonth);
   const currentVenueEntries = getVenueInfoEntries(currentVenue);
 
   const castMembers = (
@@ -328,7 +328,22 @@ export default async function HomePage() {
               <NextPerformanceNotice />
             </div>
           )}
-        </section>
+                    <div
+              data-hanabuki-public-notice
+              style={{
+                marginTop: "18px",
+                padding: "14px 16px",
+                border: "1px solid #ead8dc",
+                background: "rgba(255,255,255,0.68)",
+                color: "#72545b",
+                fontSize: "13px",
+                lineHeight: 1.8,
+              }}
+            >
+              <div>※演目・出演者・公演内容は、都合により予告なく変更となる場合がございます。</div>
+              <div>※終演時間は公演内容により異なります。</div>
+            </div>
+</section>
 
         <section className="section" id="monthly-venue">
           <div className="section-heading">
