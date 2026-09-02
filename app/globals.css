@@ -621,23 +621,37 @@ body:has(.header) footer {
   }
 }
 
-/* HANABUKI_CAST_COMPACT_LAYOUT */
-.members-grid {
-  display: flex !important;
-  flex-wrap: wrap;
-  align-items: flex-start;
+/* HANABUKI_CAST_FEATURED_LAYOUT */
+.members-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
   gap: 14px;
+  align-items: start;
 }
 
-.members-grid .member-card {
-  flex: 0 0 calc((100% - 28px) / 3);
-  align-self: flex-start;
+.members-layout .member-card {
   min-height: 0;
+  align-self: start;
+}
+
+.members-rest-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  align-items: start;
+}
+
+.member-card-featured {
+  width: 100%;
 }
 
 @media (max-width: 760px) {
-  .members-grid .member-card {
-    flex-basis: 100%;
+  .members-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .members-rest-grid {
+    grid-template-columns: 1fr;
   }
 }
 

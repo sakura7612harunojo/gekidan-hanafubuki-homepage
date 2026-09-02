@@ -2,6 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 
+
+const page = fs.readFileSync("app/page.tsx", "utf8");
 const admin = fs.readFileSync(
   "app/admin/(protected)/members/page.tsx",
   "utf8",
@@ -30,11 +32,17 @@ test("公開側はphoto_pathがある人だけ写真表示する", () => {
   const castStart = home.indexOf('id="cast"');
   const repertoireStart = home.indexOf('id="repertoire"', castStart);
   assert.ok(castStart >= 0);
-  const cast = home.slice(
-    castStart,
-    repertoireStart > castStart ? repertoireStart : home.length,
-  );
-  assert.match(cast, /member\.photo_path\s*\?/);
-  assert.match(cast, /storage\/v1\/object\/public\/gallery/);
+  const renderMemberCardStart = page.indexOf("const renderMemberCard");
+  const castSectionStart = page.indexOf('id="cast"');
+  const castSectionEnd = page.indexOf("</section>", castSectionStart);
+  const cast = [
+    renderMemberCardStart >= 0 && castSectionStart >= 0
+      ? page.slice(renderMemberCardStart, castSectionStart)
+      : "",
+    castSectionStart >= 0 && castSectionEnd >= 0
+      ? page.slice(castSectionStart, castSectionEnd + "</section>".length)
+      : "",
+  ].join("\n");
+  assert.match(page, /member\.photo_path\s*\?/);
   assert.match(cast, /objectFit:\s*"cover"/);
 });

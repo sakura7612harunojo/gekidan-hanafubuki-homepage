@@ -235,6 +235,61 @@ export default async function HomePage() {
     PERFORMANCE_VENUES[currentMonth as keyof typeof PERFORMANCE_VENUES];
   const currentVenueEntries = getVenueInfoEntries(currentVenue);
 
+  const castMembers = (
+    (members && members.length > 0)
+      ? members
+      : [
+          {
+            id: "fallback-harunojo",
+            role_name: "劇団花吹雪 座長",
+            stage_name: "桜春之丞",
+            profile: "劇団花吹雪 座長",
+            photo_path: null,
+          },
+        ]
+  )
+    .slice()
+    .sort((a, b) => getCastRoleRank(a.role_name) - getCastRoleRank(b.role_name));
+
+  const featuredMember =
+    castMembers.find((member) => member.stage_name === "桜春之丞") ?? castMembers[0];
+
+  const otherMembers = castMembers.filter(
+    (member) => member.id !== featuredMember?.id,
+  );
+
+  const renderMemberCard = (
+    member: (typeof castMembers)[number],
+    featured = false,
+  ) => (
+    <article
+      className={`card member-card${featured ? " member-card-featured" : ""}`}
+      key={member.id}
+    >
+      {member.photo_path ? (
+        <img
+          src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/gallery/${member.photo_path}`}
+          alt={`${member.stage_name}の写真`}
+          style={{
+            display: "block",
+            width: "100%",
+            aspectRatio: "4 / 5",
+            objectFit: "cover",
+            objectPosition: "top center",
+            marginBottom: 18,
+            border: "1px solid #302b24",
+          }}
+        />
+      ) : null}
+      <small>{member.role_name}</small>
+      <h3>{member.stage_name}</h3>
+      {member.profile && member.profile !== "プロフィール準備中" && (
+        <p>{member.profile}</p>
+      )}
+    </article>
+  );
+
+
   return (
     <>
       <Header />
@@ -430,40 +485,12 @@ export default async function HomePage() {
                 alt="桜春之丞 サイン"
               />
             </div>
-          <div className="grid members-grid">
-            {((members && members.length > 0)
-              ? members
-              : [
-                  {
-                    id: "fallback-harunojo",
-                    role_name: "劇団花吹雪 座長",
-                    stage_name: "桜春之丞",
-                    profile: "劇団花吹雪 座長",
-                  },
-                ]
-            ).slice().sort((a, b) => getCastRoleRank(a.role_name) - getCastRoleRank(b.role_name)).map((member) => (
-              <article className="card member-card" key={member.id}>
-                {member.photo_path ? (
-                  <img
-                    src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/gallery/${member.photo_path}`}
-                    alt={`${member.stage_name}の写真`}
-                    style={{
-                      display: "block",
-                      width: "100%",
-                      aspectRatio: "4 / 5",
-                      objectFit: "cover",
-                      objectPosition: "top center",
-                      marginBottom: 18,
-                      border: "1px solid #302b24",
-                    }}
-                  />
-                ) : null}
-                <small>{member.role_name}</small>
-                <h3>{member.stage_name}</h3>
-                {member.profile && member.profile !== "プロフィール準備中" && <p>{member.profile}</p>}
-              </article>
-            ))}
+          <div className="members-layout">
+          {featuredMember ? renderMemberCard(featuredMember, true) : null}
+          <div className="members-rest-grid">
+            {otherMembers.map((member) => renderMemberCard(member))}
           </div>
+        </div>
         </section>
 
 </main>
