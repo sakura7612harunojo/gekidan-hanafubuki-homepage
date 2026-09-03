@@ -12,7 +12,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getPerformanceVenueMap } from "@/lib/performance-venue-cms";
 export const metadata: Metadata = {
   title: {
-    absolute: "公演予定 | 劇団花吹雪",
+    absolute: "劇団花吹雪 | 公演案内",
   },
   description:
     "劇団花吹雪の公演予定。公演日、劇場、芝居、ラストショー、イベント・ゲスト情報を掲載しています。",
