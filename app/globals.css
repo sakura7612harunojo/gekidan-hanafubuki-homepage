@@ -337,13 +337,13 @@ body:has(.header) .header {
 }
 
 body:has(.header) .header a,
-body:has(.header) .brand,
-body:has(.header) nav a {
+body:has(.header) .header .brand,
+body:has(.header) .header nav a {
   color: var(--hanabuki-text);
 }
 
 body:has(.header) .header a:hover,
-body:has(.header) nav a:hover {
+body:has(.header) .header nav a:hover {
   color: var(--hanabuki-pink-deep);
 }
 

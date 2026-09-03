@@ -246,9 +246,7 @@ export default async function PerformancesPage() {
 
       <style>{`
         .performance-month-navigation {
-          position: sticky;
-          top: 0;
-          z-index: 20;
+          position: static;
           margin-bottom: 32px;
           padding: 14px 0;
           background: rgba(8, 7, 6, 0.96);
