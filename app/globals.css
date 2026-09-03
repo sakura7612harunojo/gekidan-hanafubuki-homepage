@@ -658,38 +658,46 @@ body:has(.header) footer {
 
 
 /* HANABUKI_PUBLIC_READABILITY */
-.header .brand,
-.header .nav a {
-  color: #5b303a;
-  opacity: 1;
+body:has(.header) .header .brand,
+body:has(.header) .header .nav a {
+  color: #5b303a !important;
+  opacity: 1 !important;
   text-shadow: none;
 }
 
-.section-hero h1 {
+body:has(.header) .header .nav a:hover,
+body:has(.header) .header .nav a:focus-visible {
+  color: #9b4768 !important;
+}
+
+body:has(.header) .schedule-hero h1 {
   color: #f2d6dd;
 }
 
-.section-hero p {
+body:has(.header) .schedule-hero p:last-child {
   color: #f4e9ec;
 }
 
-.section-hero .eyebrow {
+body:has(.header) .schedule-hero .eyebrow {
   color: #ddb23d;
 }
 
-.performance-venue-card-readability,
-.performance-venue-card-readability p,
-.performance-venue-card-readability dt,
-.performance-venue-card-readability dd,
-.performance-venue-card-readability strong {
-  color: #f4e9ec;
+body:has(.header) .performance-venue-card-readability .venue-info-eyebrow {
+  color: #ddb23d;
 }
 
-.performance-venue-card-readability h2,
-.performance-venue-card-readability h3 {
+body:has(.header) .performance-venue-card-readability .venue-info-name {
   color: #f2d6dd;
 }
 
-.performance-venue-card-readability a {
-  color: #e0b642;
+body:has(.header) .performance-venue-card-readability .venue-info-item {
+  color: #f4e9ec;
+}
+
+body:has(.header) .performance-venue-card-readability .venue-info-label {
+  color: #d8cfd2;
+}
+
+body:has(.header) .performance-venue-card-readability a {
+  color: #e0b642 !important;
 }
