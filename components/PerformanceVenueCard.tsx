@@ -8,7 +8,7 @@ export function PerformanceVenueCard({
   venue: PerformanceVenueInfo;
 }) {
   return (
-    <aside className="venue-info-card">
+    <aside className="venue-info-card performance-venue-card-readability">
       <style>{`
         .venue-info-card {
           margin: 0 0 22px;

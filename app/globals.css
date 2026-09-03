@@ -655,3 +655,41 @@ body:has(.header) footer {
   }
 }
 
+
+
+/* HANABUKI_PUBLIC_READABILITY */
+.header .brand,
+.header .nav a {
+  color: #5b303a;
+  opacity: 1;
+  text-shadow: none;
+}
+
+.section-hero h1 {
+  color: #f2d6dd;
+}
+
+.section-hero p {
+  color: #f4e9ec;
+}
+
+.section-hero .eyebrow {
+  color: #ddb23d;
+}
+
+.performance-venue-card-readability,
+.performance-venue-card-readability p,
+.performance-venue-card-readability dt,
+.performance-venue-card-readability dd,
+.performance-venue-card-readability strong {
+  color: #f4e9ec;
+}
+
+.performance-venue-card-readability h2,
+.performance-venue-card-readability h3 {
+  color: #f2d6dd;
+}
+
+.performance-venue-card-readability a {
+  color: #e0b642;
+}
