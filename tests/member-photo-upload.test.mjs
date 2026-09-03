@@ -44,5 +44,5 @@ test("公開側はphoto_pathがある人だけ写真表示する", () => {
       : "",
   ].join("\n");
   assert.match(page, /member\.photo_path\s*\?/);
-  assert.match(cast, /objectFit:\s*"cover"/);
+  assert.match(cast, /variant="member"/);
 });

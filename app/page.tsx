@@ -13,6 +13,7 @@ import { createClient as createPublicSupabaseClient } from "@supabase/supabase-j
 import { getJapanDateParts } from "@/lib/date";
 
 import { NextPerformanceNotice } from "@/components/NextPerformanceNotice";
+import { PublicResponsiveImage } from "@/components/PublicResponsiveImage";
 import { PERFORMANCE_VENUES } from "@/lib/performance-venues";
 import { getPerformanceVenueForMonth } from "@/lib/performance-venue-cms";
 export const dynamic = "force-dynamic";
@@ -267,18 +268,10 @@ export default async function HomePage() {
       key={member.id}
     >
       {member.photo_path ? (
-        <img
+        <PublicResponsiveImage
           src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/gallery/${member.photo_path}`}
           alt={`${member.stage_name}の写真`}
-          style={{
-            display: "block",
-            width: "100%",
-            aspectRatio: "4 / 5",
-            objectFit: "cover",
-            objectPosition: "top center",
-            marginBottom: 18,
-            border: "1px solid #302b24",
-          }}
+          variant="member"
         />
       ) : null}
       <small>{member.role_name}</small>
@@ -455,10 +448,10 @@ export default async function HomePage() {
           <div className="hanabuki-gallery-grid">
             {(galleryData ?? []).map((photo) => (
               <article className="hanabuki-gallery-card" key={photo.id}>
-                <img
+                <PublicResponsiveImage
                   src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/gallery/${photo.storage_path}`}
                   alt={photo.title || "投稿写真"}
-                  style={{ width: "100%", height: "auto", display: "block" }}
+                  variant="gallery"
                 />
                 </article>
             ))}
