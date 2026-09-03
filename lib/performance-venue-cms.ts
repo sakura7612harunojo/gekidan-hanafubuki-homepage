@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { PERFORMANCE_VENUES } from "@/lib/performance-venues";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 type VenueRow = {
   performance_month: string;
@@ -99,10 +100,10 @@ function publicVenueFromRow(
   };
 }
 
-async function getCmsVenueMap(): Promise<
+async function getCmsVenueMap(supabaseClient?: SupabaseClient): Promise<
   Record<string, PublicPerformanceVenue>
 > {
-  const supabase = await createClient();
+  const supabase = supabaseClient ?? await createClient();
   const { data, error } = await supabase
     .from("performance_venues")
     .select(
@@ -125,8 +126,14 @@ async function getCmsVenueMap(): Promise<
 
 export async function getPerformanceVenueMap(): Promise<
   Record<string, PublicPerformanceVenue>
-> {
-  const cms = await getCmsVenueMap();
+>;
+export async function getPerformanceVenueMap(
+  supabaseClient: SupabaseClient,
+): Promise<Record<string, PublicPerformanceVenue>>;
+export async function getPerformanceVenueMap(
+  supabaseClient?: SupabaseClient,
+): Promise<Record<string, PublicPerformanceVenue>> {
+  const cms = await getCmsVenueMap(supabaseClient);
 
   const fallback =
     PERFORMANCE_VENUES as unknown as Record<string, PublicPerformanceVenue>;
@@ -139,8 +146,11 @@ export async function getPerformanceVenueMap(): Promise<
 
 export async function getPerformanceVenueForMonth(
   month: string,
+  supabaseClient?: SupabaseClient,
 ): Promise<PublicPerformanceVenue> {
-  const map = await getPerformanceVenueMap();
+  const map = supabaseClient
+    ? await getPerformanceVenueMap(supabaseClient)
+    : await getPerformanceVenueMap();
   return map[month] ?? emptyVenue(month);
 }
 

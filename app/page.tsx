@@ -16,8 +16,7 @@ import { NextPerformanceNotice } from "@/components/NextPerformanceNotice";
 import { PublicResponsiveImage } from "@/components/PublicResponsiveImage";
 import { PERFORMANCE_VENUES } from "@/lib/performance-venues";
 import { getPerformanceVenueForMonth } from "@/lib/performance-venue-cms";
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+export const revalidate = 300;
 
 // HANABUKI_MONTHLY_VENUE_HELPERS
 type VenueInfoEntry = {
@@ -195,8 +194,9 @@ export default async function HomePage() {
     }
   );
   const today = getJapanDateParts();
+  const currentMonth = today.iso.slice(0, 7);
 
-  const [{ data: todayData }, { data: upcomingData }, { data: members }, { data: works }, { data: galleryData }] = await Promise.all([
+  const [{ data: todayData }, { data: upcomingData }, { data: members }, { data: works }, { data: galleryData }, currentVenue] = await Promise.all([
     supabase
       .from("performances")
       .select("id,performance_date,venue_name,session_type,event_name,play_title,last_show_title,night_show_title")
@@ -217,6 +217,7 @@ export default async function HomePage() {
       .eq("status", "published")
       .order("created_at", { ascending: false })
       .limit(6),
+    getPerformanceVenueForMonth(currentMonth, supabase),
   ]);
 
   const todayPerformance =
@@ -230,10 +231,6 @@ export default async function HomePage() {
           .filter((performance) => performance.performance_date > today.iso)
           .sort((a, b) => a.performance_date.localeCompare(b.performance_date))
           .slice(0, 5);
-
-
-  const currentMonth = today.iso.slice(0, 7);
-  const currentVenue = await getPerformanceVenueForMonth(currentMonth);
   const currentVenueEntries = getVenueInfoEntries(currentVenue);
 
   const castMembers = (
@@ -318,7 +315,7 @@ export default async function HomePage() {
             <PerformanceCard performance={todayPerformance} featured />
           ) : (
             <div className="empty-state">本日の公演情報はまだ登録されていません。
-              <NextPerformanceNotice />
+              <NextPerformanceNotice performance={upcoming[0]} />
             </div>
           )}
                     <div

@@ -3,23 +3,6 @@ import {
   type Performance,
 } from "@/components/PerformanceCard";
 
-import { createClient } from "@/lib/supabase/server";
-
-function getJapanToday() {
-  const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone: "Asia/Tokyo",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).formatToParts(new Date());
-
-  const values = Object.fromEntries(
-    parts.map((part) => [part.type, part.value]),
-  );
-
-  return `${values.year}-${values.month}-${values.day}`;
-}
-
 function formatDate(date: string) {
   return new Intl.DateTimeFormat("ja-JP", {
     timeZone: "Asia/Tokyo",
@@ -31,34 +14,14 @@ function formatDate(date: string) {
   );
 }
 
-export async function NextPerformanceNotice() {
-  const today = getJapanToday();
-  const supabase = await createClient();
+type NextPerformanceNoticeProps = {
+  performance: Performance | null | undefined;
+};
 
-  const { data, error } = await supabase
-    .from("performances")
-    .select(
-      "id,performance_date,venue_name,session_type,event_name,play_title,last_show_title,night_show_title,has_first_part,is_public",
-    )
-    .eq("is_public", true)
-    .gt("performance_date", today)
-    .order("performance_date", {
-      ascending: true,
-    })
-    .limit(1);
-
-  if (error) {
-    console.error(
-      "Next performance fetch error:",
-      error.message,
-    );
-    return null;
-  }
-
-  const nextPerformance =
-    (data?.[0] ?? null) as Performance | null;
-
-  if (!nextPerformance) {
+export function NextPerformanceNotice({
+  performance,
+}: NextPerformanceNoticeProps) {
+  if (!performance) {
     return null;
   }
 
@@ -115,11 +78,11 @@ export async function NextPerformanceNotice() {
       </h3>
 
       <p className="next-stage-date">
-        {formatDate(nextPerformance.performance_date)}
+        {formatDate(performance.performance_date)}
       </p>
 
       <PerformanceCard
-        performance={nextPerformance}
+        performance={performance}
       />
     </section>
   );

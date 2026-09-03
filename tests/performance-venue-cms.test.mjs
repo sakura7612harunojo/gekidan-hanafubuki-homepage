@@ -46,7 +46,7 @@ test("管理画面から1か月1件の公演先情報を保存・削除できる
 
 test("トップページはCMSの今月公演先を優先する", () => {
   assert.match(home, /getPerformanceVenueForMonth/);
-  assert.match(home, /await\s+getPerformanceVenueForMonth\(currentMonth\)/);
+  assert.match(home, /getPerformanceVenueForMonth\(currentMonth,\s*supabase\)/);
 });
 
 test("公演予定ページはCMSの月別公演先を利用できる", () => {

@@ -14,22 +14,15 @@ test("ホームに次回公演表示を組み込む", async () => {
   assert.match(page, /NextPerformanceNotice/);
 });
 
-test("次回公演は今日より後の公開公演を取得する", async () => {
+test("次回公演はホームで取得済みの公開予定を再利用する", async () => {
+  const page = await readFile("app/page.tsx", "utf8");
   const source = await readFile(
     "components/NextPerformanceNotice.tsx",
     "utf8",
   );
 
-  assert.match(
-    source,
-    /\.eq\(\s*"is_public"\s*,\s*true\s*\)/,
-  );
-
-  assert.match(
-    source,
-    /\.gt\(\s*"performance_date"\s*,\s*today\s*\)/,
-  );
-
+  assert.match(page, /<NextPerformanceNotice\s+performance=\{upcoming\[0\]\}/);
+  assert.doesNotMatch(source, /createClient|\.from\(\s*"performances"\s*\)/);
   assert.match(source, /次回公演/);
 });
 
