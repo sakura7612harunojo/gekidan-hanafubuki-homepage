@@ -365,7 +365,7 @@ export default async function HomePage() {
                     }}
                   >
                     <span style={{ color: "#aaa29a", fontSize: "13px" }}>{entry.label}</span>
-                    <strong style={{ whiteSpace: "pre-line", lineHeight: 1.7 }}>{entry.value}</strong>
+                    <strong style={{ color: "#f2dfac", whiteSpace: "pre-line", lineHeight: 1.7 }}>{entry.value}</strong>
                   </div>
                 ))}
               </div>
