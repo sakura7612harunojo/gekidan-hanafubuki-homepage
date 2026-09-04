@@ -4,6 +4,10 @@ import fs from "node:fs";
 
 const page = fs.readFileSync("app/page.tsx", "utf8");
 const css = fs.readFileSync("app/globals.css", "utf8");
+const brandImages = fs.readFileSync(
+  "components/PublicBrandImages.tsx",
+  "utf8",
+);
 
 function sectionSliceById(source, id) {
   const start = source.indexOf(`id="${id}"`);
@@ -16,9 +20,10 @@ function sectionSliceById(source, id) {
 
 test("桜春之丞サインは劇団員紹介セクション内に置く", () => {
   const cast = sectionSliceById(page, "cast");
-  assert.match(cast, /harunojo-signature\.png/);
+  assert.match(cast, /CastHeadingSignature/);
+  assert.match(brandImages, /harunojo-signature\.png/);
   assert.match(cast, /cast-heading-with-signature/);
-  assert.match(cast, /cast-heading-signature/);
+  assert.match(brandImages, /cast-heading-signature/);
 });
 
 test("桜春之丞サインはトップのヒーローから外す", () => {

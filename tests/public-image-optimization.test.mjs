@@ -11,6 +11,10 @@ const componentPath = path.join(
   process.cwd(),
   "components/PublicResponsiveImage.tsx",
 );
+const brandImageComponentPath = path.join(
+  process.cwd(),
+  "components/PublicBrandImages.tsx",
+);
 
 function loadTypeScriptComponent(filename) {
   assert.equal(
@@ -67,4 +71,30 @@ test("劇団員写真は4対5の表示領域を読み込み前から確保する
   assert.match(html, /sizes="\(max-width: 760px\) calc\(100vw - 80px\), 29vw"/);
   assert.match(html, /object-fit:cover/);
   assert.match(html, /object-position:top center/);
+});
+
+test("トップの春マークは表示幅に合う最適化画像を優先取得する", () => {
+  const { HeroTitleMark } = loadTypeScriptComponent(brandImageComponentPath);
+  const html = renderToStaticMarkup(React.createElement(HeroTitleMark));
+
+  assert.match(html, /<link rel="preload" as="image"/);
+  assert.match(html, /sizes="\(max-width: 760px\) 72px, 120px"/);
+  assert.match(html, /srcSet="[^"]*\/_next\/image\?/);
+  assert.doesNotMatch(html, /loading="lazy"/);
+});
+
+test("画面下のサインは表示位置まで最適化画像の取得を遅らせる", () => {
+  const { CastHeadingSignature } = loadTypeScriptComponent(
+    brandImageComponentPath,
+  );
+  const html = renderToStaticMarkup(
+    React.createElement(CastHeadingSignature),
+  );
+
+  assert.match(html, /loading="lazy"/);
+  assert.match(
+    html,
+    /sizes="\(max-width: 760px\) min\(72vw, 260px\), min\(36vw, 360px\)"/,
+  );
+  assert.match(html, /srcSet="[^"]*\/_next\/image\?/);
 });

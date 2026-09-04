@@ -13,6 +13,10 @@ import { createClient as createPublicSupabaseClient } from "@supabase/supabase-j
 import { getJapanDateParts } from "@/lib/date";
 
 import { NextPerformanceNotice } from "@/components/NextPerformanceNotice";
+import {
+  CastHeadingSignature,
+  HeroTitleMark,
+} from "@/components/PublicBrandImages";
 import { PublicResponsiveImage } from "@/components/PublicResponsiveImage";
 import { PERFORMANCE_VENUES } from "@/lib/performance-venues";
 import { getPerformanceVenueForMonth } from "@/lib/performance-venue-cms";
@@ -289,11 +293,7 @@ export default async function HomePage() {
             <p>GEKIDAN HANAFUBUKI</p>
             <div className="hero-title-with-mark">
               <h1>劇団花吹雪</h1>
-              <img
-                className="hero-title-mark"
-                src="/images/hanabuki-haru-mark.png"
-                alt="春"
-              />
+              <HeroTitleMark />
             </div>
             <p className="lead">華やかな舞踊と、人の情を描く芝居。劇場でしか味わえない舞台をお届けします。</p>
             <div className="actions">
@@ -484,11 +484,7 @@ export default async function HomePage() {
           <p className="eyebrow">CAST</p>
           <div className="cast-heading-with-signature">
               <h2>劇団員紹介</h2>
-              <img
-                className="cast-heading-signature"
-                src="/images/harunojo-signature.png"
-                alt="桜春之丞 サイン"
-              />
+              <CastHeadingSignature />
             </div>
           <div className="members-layout">
           {featuredMember ? renderMemberCard(featuredMember, true) : null}

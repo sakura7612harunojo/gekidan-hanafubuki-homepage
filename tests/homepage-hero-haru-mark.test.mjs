@@ -5,6 +5,10 @@ import fs from "node:fs";
 const page = fs.readFileSync("app/page.tsx", "utf8");
 const header = fs.readFileSync("components/Header.tsx", "utf8");
 const css = fs.readFileSync("app/globals.css", "utf8");
+const brandImages = fs.readFileSync(
+  "components/PublicBrandImages.tsx",
+  "utf8",
+);
 
 test("上部ヘッダーには春マークを表示しない", () => {
   assert.doesNotMatch(header, /hanabuki-haru-mark\.png/);
@@ -14,8 +18,9 @@ test("上部ヘッダーには春マークを表示しない", () => {
 test("大きい劇団花吹雪の右横に春マークを表示する", () => {
   assert.match(page, /hero-title-with-mark/);
   assert.match(page, /<h1>劇団花吹雪<\/h1>/);
-  assert.match(page, /hero-title-mark/);
-  assert.match(page, /\/images\/hanabuki-haru-mark\.png/);
+  assert.match(page, /HeroTitleMark/);
+  assert.match(brandImages, /hero-title-mark/);
+  assert.match(brandImages, /\/images\/hanabuki-haru-mark\.png/);
 });
 
 test("大見出しと春マークは横並び", () => {
