@@ -44,6 +44,15 @@ export function VenueSearch({ initialQuery, initialMonth }: Props) {
     move(params);
   }
 
+  function handleMonthShortcut(offset: number) {
+    const now = new Date();
+    const target = new Date(now.getFullYear(), now.getMonth() + offset, 1);
+    const year = target.getFullYear();
+    const month = String(target.getMonth() + 1).padStart(2, "0");
+
+    handleMonth(`${year}-${month}`);
+  }
+
   function handleClear() {
     const params = new URLSearchParams(searchParams.toString());
     params.delete("q");
@@ -103,6 +112,46 @@ export function VenueSearch({ initialQuery, initialMonth }: Props) {
           }}
         />
       </label>
+
+      <div
+        style={{
+          display: "flex",
+          gap: 8,
+          gridColumn: "1 / -1",
+        }}
+      >
+        <button
+          type="button"
+          onClick={() => handleMonthShortcut(0)}
+          style={{
+            padding: "9px 14px",
+            border: "1px solid #b98c2f",
+            background: "transparent",
+            color: "#7a5a19",
+            borderRadius: 6,
+            fontWeight: 700,
+            cursor: "pointer",
+          }}
+        >
+          今月
+        </button>
+
+        <button
+          type="button"
+          onClick={() => handleMonthShortcut(1)}
+          style={{
+            padding: "9px 14px",
+            border: "1px solid #b98c2f",
+            background: "transparent",
+            color: "#7a5a19",
+            borderRadius: 6,
+            fontWeight: 700,
+            cursor: "pointer",
+          }}
+        >
+          来月
+        </button>
+      </div>
 
       {Boolean(initialQuery || initialMonth) && (
         <button

@@ -43,3 +43,16 @@ test("会場管理の検索条件を一括クリアできる", () => {
     /function handleClear[\s\S]*?params\.delete\("q"\);[\s\S]*?params\.delete\("month"\);[\s\S]*?move\(params\);/
   );
 });
+
+test("会場管理で今月と来月を一発指定できる", () => {
+  const searchSource = readFileSync(
+    "components/admin/VenueSearch.tsx",
+    "utf8"
+  );
+
+  assert.match(searchSource, /今月/);
+  assert.match(searchSource, /来月/);
+  assert.match(searchSource, /function handleMonthShortcut/);
+  assert.match(searchSource, /handleMonthShortcut\(0\)/);
+  assert.match(searchSource, /handleMonthShortcut\(1\)/);
+});
