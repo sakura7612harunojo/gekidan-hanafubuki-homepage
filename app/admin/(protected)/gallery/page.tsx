@@ -1,6 +1,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { AdminSubmitButton } from "@/components/admin/AdminSubmitButton";
+import { GallerySearch } from "@/components/admin/GallerySearch";
 
 export const dynamic = "force-dynamic";
 
@@ -245,13 +246,35 @@ async function deletePhoto(formData: FormData) {
   revalidatePath("/");
 }
 
-export default async function AdminGalleryPage() {
+export default async function AdminGalleryPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; status?: string }>;
+}) {
   const supabase = await createClient();
+  const resolvedSearchParams = await searchParams;
+  const q = String(resolvedSearchParams?.q || "").trim();
+  const status = String(resolvedSearchParams?.status || "").trim();
 
-  const { data: photos, error } = await supabase
+  let photosQuery = supabase
     .from("gallery")
     .select("*")
     .order("created_at", { ascending: false });
+
+  if (q) {
+    const safeQ = q.replace(/[,%()]/g, "");
+    photosQuery = photosQuery.ilike("title", `%${safeQ}%`);
+  }
+
+  if (status === "published") {
+    photosQuery = photosQuery.eq("status", "published");
+  } else if (status === "hidden") {
+    photosQuery = photosQuery.eq("status", "hidden");
+  } else if (status === "pending") {
+    photosQuery = photosQuery.eq("status", "pending");
+  }
+
+  const { data: photos, error } = await photosQuery;
 
   if (error) throw new Error(error.message);
 
@@ -380,6 +403,8 @@ export default async function AdminGalleryPage() {
           </AdminSubmitButton>
         </form>
       </section>
+
+      <GallerySearch initialQuery={q} initialStatus={status} />
 
       {!photos || photos.length === 0 ? (
           <div
