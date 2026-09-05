@@ -101,11 +101,12 @@ async function deleteWork(formData: FormData) {
 export default async function WorksPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; type?: string }>;
 }) {
   const supabase = await createClient();
   const resolvedSearchParams = await searchParams;
   const q = String(resolvedSearchParams?.q || "").trim();
+  const type = String(resolvedSearchParams?.type || "").trim();
 
   let worksQuery = supabase
     .from("works")
@@ -114,6 +115,14 @@ export default async function WorksPage({
 
   if (q) {
     worksQuery = worksQuery.ilike("title", `%${q}%`);
+  }
+
+  if (type === "芝居") {
+    worksQuery = worksQuery.in("work_type", ["芝居", "芝居・舞踊"]);
+  } else if (type === "舞踊") {
+    worksQuery = worksQuery.in("work_type", ["舞踊", "芝居・舞踊"]);
+  } else if (type === "両方") {
+    worksQuery = worksQuery.eq("work_type", "芝居・舞踊");
   }
 
   const { data } = await worksQuery;
@@ -174,7 +183,7 @@ export default async function WorksPage({
         <section>
           <h2>登録済み演目</h2>
 
-          <WorksSearch initialQuery={q} />
+          <WorksSearch initialQuery={q} initialType={type} />
 
           {works.length === 0 ? (
             <div style={panelStyle}>演目データはまだありません。</div>

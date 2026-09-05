@@ -2,10 +2,23 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-export function WorksSearch({ initialQuery }: { initialQuery: string }) {
+type Props = {
+  initialQuery: string;
+  initialType: string;
+};
+
+export function WorksSearch({ initialQuery, initialType }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  function move(params: URLSearchParams) {
+    const query = params.toString();
+
+    router.replace(query ? `${pathname}?${query}` : pathname, {
+      scroll: false,
+    });
+  }
 
   function handleChange(value: string) {
     const params = new URLSearchParams(searchParams.toString());
@@ -16,12 +29,27 @@ export function WorksSearch({ initialQuery }: { initialQuery: string }) {
       params.delete("q");
     }
 
-    const query = params.toString();
-
-    router.replace(query ? `${pathname}?${query}` : pathname, {
-      scroll: false,
-    });
+    move(params);
   }
+
+  function handleTypeChange(value: string) {
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (value) {
+      params.set("type", value);
+    } else {
+      params.delete("type");
+    }
+
+    move(params);
+  }
+
+  const buttons = [
+    { label: "全部", value: "" },
+    { label: "芝居", value: "芝居" },
+    { label: "舞踊", value: "舞踊" },
+    { label: "両方", value: "両方" },
+  ];
 
   return (
     <div style={{ marginBottom: 24 }}>
@@ -47,6 +75,37 @@ export function WorksSearch({ initialQuery }: { initialQuery: string }) {
           }}
         />
       </label>
+
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 8,
+          marginTop: 14,
+        }}
+      >
+        {buttons.map((button) => {
+          const active = initialType === button.value;
+
+          return (
+            <button
+              key={button.label}
+              type="button"
+              onClick={() => handleTypeChange(button.value)}
+              style={{
+                padding: "10px 16px",
+                border: "1px solid #d4a83d",
+                background: active ? "#d4a83d" : "#080706",
+                color: active ? "#080706" : "#d4a83d",
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
+            >
+              {button.label}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
