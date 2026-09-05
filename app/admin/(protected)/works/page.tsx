@@ -2,6 +2,7 @@ import Link from "next/link";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { AdminSubmitButton } from "@/components/admin/AdminSubmitButton";
+import { WorksSearch } from "@/components/admin/WorksSearch";
 
 export const dynamic = "force-dynamic";
 
@@ -97,14 +98,25 @@ async function deleteWork(formData: FormData) {
   revalidatePath("/");
 }
 
-export default async function WorksPage() {
+export default async function WorksPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
   const supabase = await createClient();
+  const resolvedSearchParams = await searchParams;
+  const q = String(resolvedSearchParams?.q || "").trim();
 
-  const { data } = await supabase
+  let worksQuery = supabase
     .from("works")
     .select("id,work_type,title,summary,is_public")
     .order("title");
 
+  if (q) {
+    worksQuery = worksQuery.ilike("title", `%${q}%`);
+  }
+
+  const { data } = await worksQuery;
   const works = data || [];
 
   return (
@@ -161,6 +173,8 @@ export default async function WorksPage() {
 
         <section>
           <h2>登録済み演目</h2>
+
+          <WorksSearch initialQuery={q} />
 
           {works.length === 0 ? (
             <div style={panelStyle}>演目データはまだありません。</div>
