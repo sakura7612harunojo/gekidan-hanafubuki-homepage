@@ -88,8 +88,11 @@ export default async function GalleryPage() {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+                gridTemplateColumns: "repeat(auto-fit, minmax(240px, 360px))",
                 gap: 24,
+                justifyContent: "center",
+                maxWidth: 1120,
+                margin: "0 auto",
               }}
             >
               {photos.map((photo) => {

@@ -8,7 +8,8 @@ export function Header() {
         <Link href="/#today">本日の公演</Link>
         <Link href="/performances">公演予定</Link>
         <a href="/#cast">劇団員</a>
-<Link href="/news">お知らせ</Link>
+        <Link href="/gallery">写真</Link>
+        <Link href="/news">お知らせ</Link>
 </nav>
     </header>
   );
