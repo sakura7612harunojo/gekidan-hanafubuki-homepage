@@ -2,6 +2,7 @@ import Link from "next/link";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { AdminSubmitButton } from "@/components/admin/AdminSubmitButton";
+import { MembersSearch } from "@/components/admin/MembersSearch";
 
 export const dynamic = "force-dynamic";
 
@@ -135,15 +136,29 @@ async function updateMemberPhoto(formData: FormData) {
   revalidatePath("/admin/members");
 }
 
-export default async function MembersPage() {
+export default async function MembersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
   const supabase = await createClient();
+  const resolvedSearchParams = await searchParams;
+  const q = String(resolvedSearchParams?.q || "").trim();
 
-  const { data } = await supabase
+  let membersQuery = supabase
     .from("members")
     .select("id,stage_name,role_name,profile,sort_order,is_public,photo_path")
     .order("sort_order")
     .order("stage_name");
 
+  if (q) {
+    const safeQ = q.replace(/[,%()]/g, "");
+    membersQuery = membersQuery.or(
+      `stage_name.ilike.%${safeQ}%,role_name.ilike.%${safeQ}%`
+    );
+  }
+
+  const { data } = await membersQuery;
   const members = data || [];
 
   return (
@@ -210,6 +225,8 @@ export default async function MembersPage() {
 
         <section>
           <h2>登録済み劇団員</h2>
+
+          <MembersSearch initialQuery={q} />
 
           {members.length === 0 ? (
             <div style={panelStyle}>劇団員データはまだありません。</div>
