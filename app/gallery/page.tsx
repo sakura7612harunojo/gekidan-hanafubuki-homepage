@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Header } from "@/components/Header";
+import { FanPhotoSubmitForm } from "@/components/FanPhotoSubmitForm";
 import { createClient as createPublicSupabaseClient } from "@supabase/supabase-js";
 
 export const dynamic = "force-dynamic";
@@ -84,6 +85,8 @@ export default async function GalleryPage() {
         </section>
 
         <section className="section">
+          <FanPhotoSubmitForm />
+
           {photos.length > 0 ? (
             <div
               style={{
