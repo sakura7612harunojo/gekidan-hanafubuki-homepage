@@ -2,6 +2,7 @@ import Link from "next/link";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { AdminSubmitButton } from "@/components/admin/AdminSubmitButton";
+import { VenueSearch } from "@/components/admin/VenueSearch";
 
 export const dynamic = "force-dynamic";
 
@@ -107,12 +108,31 @@ const buttonStyle = {
   cursor: "pointer",
 } as const;
 
-export default async function VenuesPage() {
+export default async function VenuesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; month?: string }>;
+}) {
   const supabase = await createClient();
-  const { data: venues, error } = await supabase
+  const resolvedSearchParams = await searchParams;
+  const q = String(resolvedSearchParams?.q || "").trim();
+  const month = String(resolvedSearchParams?.month || "").trim();
+
+  let venuesQuery = supabase
     .from("performance_venues")
     .select("*")
     .order("performance_month", { ascending: false });
+
+  if (q) {
+    const safeQ = q.replace(/[,%()]/g, "");
+    venuesQuery = venuesQuery.ilike("venue_name", `%${safeQ}%`);
+  }
+
+  if (/^\d{4}-\d{2}$/.test(month)) {
+    venuesQuery = venuesQuery.eq("performance_month", `${month}-01`);
+  }
+
+  const { data: venues, error } = await venuesQuery;
 
   if (error) throw new Error(error.message);
 
@@ -228,6 +248,9 @@ export default async function VenuesPage() {
 
         <section style={{ display: "grid", gap: 18 }}>
           <h2 style={{ marginBottom: 0 }}>登録済み</h2>
+
+          <VenueSearch initialQuery={q} initialMonth={month} />
+
           {(venues ?? []).map((venue) => (
             <article key={venue.id} style={cardStyle}>
               <form action={saveVenue} style={{ display: "grid", gap: 14 }}>
