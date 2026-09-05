@@ -131,6 +131,7 @@ export default async function WorksPage() {
               <select name="work_type" required style={inputStyle}>
                 <option value="芝居">芝居</option>
                 <option value="舞踊">舞踊</option>
+                <option value="芝居・舞踊">芝居・舞踊（両方）</option>
               </select>
             </label>
 
@@ -179,6 +180,7 @@ export default async function WorksPage() {
                       >
                         <option value="芝居">芝居</option>
                         <option value="舞踊">舞踊</option>
+                        <option value="芝居・舞踊">芝居・舞踊（両方）</option>
                       </select>
                     </label>
 
