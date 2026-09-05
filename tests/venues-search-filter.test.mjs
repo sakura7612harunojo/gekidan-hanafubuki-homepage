@@ -29,3 +29,17 @@ test("会場管理で公演先名と対象月を絞り込める", () => {
   assert.match(pageSource, /\.eq\("performance_month"/);
   assert.match(pageSource, /<VenueSearch/);
 });
+
+test("会場管理の検索条件を一括クリアできる", () => {
+  const searchSource = readFileSync(
+    "components/admin/VenueSearch.tsx",
+    "utf8"
+  );
+
+  assert.match(searchSource, /検索条件をクリア/);
+
+  assert.match(
+    searchSource,
+    /function handleClear[\s\S]*?params\.delete\("q"\);[\s\S]*?params\.delete\("month"\);[\s\S]*?move\(params\);/
+  );
+});

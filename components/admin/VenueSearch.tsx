@@ -44,6 +44,13 @@ export function VenueSearch({ initialQuery, initialMonth }: Props) {
     move(params);
   }
 
+  function handleClear() {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("q");
+    params.delete("month");
+    move(params);
+  }
+
   return (
     <div
       style={{
@@ -56,6 +63,7 @@ export function VenueSearch({ initialQuery, initialMonth }: Props) {
       <label style={{ display: "grid", gap: 6, fontWeight: 700 }}>
         公演先を検索
         <input
+          key={initialQuery}
           name="q"
           type="search"
           defaultValue={initialQuery}
@@ -78,6 +86,7 @@ export function VenueSearch({ initialQuery, initialMonth }: Props) {
       <label style={{ display: "grid", gap: 6, fontWeight: 700 }}>
         対象月で絞り込み
         <input
+          key={initialMonth}
           name="month"
           type="month"
           defaultValue={initialMonth}
@@ -94,6 +103,26 @@ export function VenueSearch({ initialQuery, initialMonth }: Props) {
           }}
         />
       </label>
+
+      {Boolean(initialQuery || initialMonth) && (
+        <button
+          type="button"
+          onClick={handleClear}
+          style={{
+            gridColumn: "1 / -1",
+            width: "fit-content",
+            padding: "10px 16px",
+            border: "1px solid #b98c2f",
+            background: "transparent",
+            color: "#7a5a19",
+            borderRadius: 6,
+            fontWeight: 700,
+            cursor: "pointer",
+          }}
+        >
+          検索条件をクリア
+        </button>
+      )}
     </div>
   );
 }
