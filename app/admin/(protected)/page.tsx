@@ -14,6 +14,8 @@ export default async function AdminPage() {
         <h2>劇団花吹雪 CMS</h2>
         <Link href="/admin">ダッシュボード</Link>
         <Link href="/admin/performances">公演管理</Link>
+        <Link href="/admin/performances/bulk">公演一括登録</Link>
+        <Link href="/admin/venues">会場管理</Link>
         <Link href="/admin/news">お知らせ</Link>
         <Link href="/admin/members">劇団員</Link>
         <Link href="/admin/works">演目</Link>
@@ -33,6 +35,26 @@ export default async function AdminPage() {
             <small>公演管理</small>
             <h3>公演予定を管理</h3>
             <p>日付、会場、昼夜、芝居、ラスト、イベント、公開状態を登録・編集します。</p>
+          </Link>
+
+          <Link
+            href="/admin/performances/bulk"
+            className="card"
+            style={{ textDecoration: "none", color: "inherit" }}
+          >
+            <small>公演一括登録</small>
+            <h3>1か月分をまとめて登録</h3>
+            <p>複数日の公演予定をまとめて入力・登録します。</p>
+          </Link>
+
+          <Link
+            href="/admin/venues"
+            className="card"
+            style={{ textDecoration: "none", color: "inherit" }}
+          >
+            <small>会場管理</small>
+            <h3>公演会場を管理</h3>
+            <p>会場名、住所、アクセスなどの会場情報を登録・編集します。</p>
           </Link>
 
           <Link
