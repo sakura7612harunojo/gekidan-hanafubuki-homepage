@@ -4,6 +4,8 @@ import { useEffect } from "react";
 
 export function HashScrollHandler() {
   useEffect(() => {
+    const timers: ReturnType<typeof setTimeout>[] = [];
+
     const scrollToHash = () => {
       const hash = window.location.hash;
       if (!hash) return;
@@ -12,16 +14,29 @@ export function HashScrollHandler() {
       const target = document.getElementById(id);
       if (!target) return;
 
-      requestAnimationFrame(() => {
-        target.scrollIntoView({ behavior: "auto", block: "start" });
-      });
+      target.scrollIntoView({ behavior: "auto", block: "start" });
     };
 
-    scrollToHash();
-    window.addEventListener("hashchange", scrollToHash);
+    const adjustScroll = () => {
+      scrollToHash();
+
+      for (const delay of [100, 300, 700, 1200]) {
+        timers.push(setTimeout(scrollToHash, delay));
+      }
+    };
+
+    adjustScroll();
+
+    window.addEventListener("load", adjustScroll);
+    window.addEventListener("hashchange", adjustScroll);
 
     return () => {
-      window.removeEventListener("hashchange", scrollToHash);
+      window.removeEventListener("load", adjustScroll);
+      window.removeEventListener("hashchange", adjustScroll);
+
+      for (const timer of timers) {
+        clearTimeout(timer);
+      }
     };
   }, []);
 
