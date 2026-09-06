@@ -22,6 +22,14 @@ const organizationJsonLd = {
   "description": "大衆演劇 劇団花吹雪の公式サイト",
 };
 
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "劇団花吹雪",
+  "url": "https://www.gekidan-hanafubuki.com",
+  "description": "劇団花吹雪 大衆演劇 公式サイト",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -34,6 +42,12 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(organizationJsonLd),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(websiteJsonLd),
           }}
         />
         <SakuraPetals />

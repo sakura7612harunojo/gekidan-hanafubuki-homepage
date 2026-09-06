@@ -1,9 +1,9 @@
 export const metadata: Metadata = {
-  title: { absolute: "劇団花吹雪｜大衆演劇 公式サイト" },
+  title: { absolute: "劇団花吹雪 公式サイト｜大衆演劇｜桜春之丞・櫻京之介" },
   description: "劇団花吹雪の公式サイト。大衆演劇の公演予定、本日の演目、劇団員、芝居・舞踊演目、お知らせを掲載しています。座長 桜春之丞・櫻京之介。",
   alternates: { canonical: "/" },
-  openGraph: { type:"website", locale:"ja_JP", url:"/", siteName:"劇団花吹雪", title:"劇団花吹雪｜大衆演劇 公式サイト", description:"劇団花吹雪の公式サイト。大衆演劇の公演予定、本日の演目、劇団員、芝居・舞踊演目、お知らせを掲載しています。座長 桜春之丞・櫻京之介。", images:[{url:"/opengraph-image",width:1200,height:630,alt:"劇団花吹雪"}] },
-  twitter: { card:"summary_large_image", title:"劇団花吹雪｜大衆演劇 公式サイト", description:"劇団花吹雪の公式サイト。大衆演劇の公演予定、本日の演目、劇団員、芝居・舞踊演目、お知らせを掲載しています。座長 桜春之丞・櫻京之介。", images:["/opengraph-image"] },
+  openGraph: { type:"website", locale:"ja_JP", url:"/", siteName:"劇団花吹雪", title:"劇団花吹雪 公式サイト｜大衆演劇｜桜春之丞・櫻京之介", description:"劇団花吹雪の公式サイト。大衆演劇の公演予定、本日の演目、劇団員、芝居・舞踊演目、お知らせを掲載しています。座長 桜春之丞・櫻京之介。", images:[{url:"/opengraph-image",width:1200,height:630,alt:"劇団花吹雪"}] },
+  twitter: { card:"summary_large_image", title:"劇団花吹雪 公式サイト｜大衆演劇｜桜春之丞・櫻京之介", description:"劇団花吹雪の公式サイト。大衆演劇の公演予定、本日の演目、劇団員、芝居・舞踊演目、お知らせを掲載しています。座長 桜春之丞・櫻京之介。", images:["/opengraph-image"] },
 };
 
 import type { Metadata } from "next";
@@ -297,7 +297,7 @@ export default async function HomePage() {
               <h1>劇団花吹雪</h1>
               <HeroTitleMark />
             </div>
-            <p className="lead">華やかな舞踊と、人の情を描く芝居。劇場でしか味わえない舞台をお届けします。</p>
+            <p className="lead">劇団花吹雪の公式サイト。座長 桜春之丞・櫻京之介を中心に、華やかな舞踊と人の情を描く芝居をお届けします。</p>
             <div className="actions">
               <a className="btn primary" href="#today">本日の公演</a>
               <a className="btn" href="/performances">公演予定</a>
