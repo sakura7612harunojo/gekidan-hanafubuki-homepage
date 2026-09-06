@@ -46,3 +46,21 @@ test("公開サイトは既存のpublic gallery URLを維持する", () => {
   const home = readFileSync("app/page.tsx", "utf8");
   assert.match(home, /storage\/v1\/object\/public\/gallery/);
 });
+
+test("公開ボタンはis_publicがfalseなら表示する", () => {
+  assert.match(
+    source,
+    /\{!photo\.is_public\s*&&\s*\(/
+  );
+  assert.match(
+    source,
+    /\{photo\.is_public\s*&&\s*\(/
+  );
+});
+
+test("statusがpublishedなら再公開時にファイル移動しない", () => {
+  assert.match(
+    source,
+    /if\s*\(\s*photo\.status\s*!==\s*"published"\s*\)\s*\{[\s\S]*?moveGalleryObject/
+  );
+});

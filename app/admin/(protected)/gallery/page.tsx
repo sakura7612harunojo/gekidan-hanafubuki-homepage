@@ -127,12 +127,14 @@ async function publishPhoto(formData: FormData) {
 
   if (photo.status === "published" && photo.is_public) return;
 
-  await moveGalleryObject(
-    supabase,
-    "gallery-private",
-    "gallery",
-    photo.storage_path,
-  );
+  if (photo.status !== "published") {
+    await moveGalleryObject(
+      supabase,
+      "gallery-private",
+      "gallery",
+      photo.storage_path,
+    );
+  }
 
   const { error } = await supabase
     .from("gallery")
@@ -478,7 +480,7 @@ export default async function AdminGalleryPage({
                       flexWrap: "wrap",
                     }}
                   >
-                    {photo.status !== "published" && (
+                    {!photo.is_public && (
                       <form action={publishPhoto}>
                         <input type="hidden" name="id" value={photo.id} />
                         <AdminSubmitButton
@@ -497,7 +499,7 @@ export default async function AdminGalleryPage({
                       </form>
                     )}
 
-                    {photo.status === "published" && (
+                    {photo.is_public && (
                       <form action={hidePhoto}>
                         <input type="hidden" name="id" value={photo.id} />
                         <AdminSubmitButton
