@@ -59,5 +59,5 @@ test("公演案内ページの題名は劇団花吹雪から始まり公演案�
 
   const html = await pageHtml(`http://127.0.0.1:${port}/performances`, child, logs);
   const title = html.match(/<title>([^<]*)<\/title>/)?.[1];
-  assert.equal(title, "劇団花吹雪 | 公演案内");
+  assert.equal(title, "劇団花吹雪 公演予定｜大衆演劇｜桜春之丞・櫻京之介");
 });
