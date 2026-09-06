@@ -8,7 +8,6 @@ export const metadata: Metadata = {
 
 import type { Metadata } from "next";
 import { Header } from "@/components/Header";
-import { HashScrollHandler } from "@/components/HashScrollHandler";
 import { PerformanceCard, type Performance } from "@/components/PerformanceCard";
 import { createClient as createPublicSupabaseClient } from "@supabase/supabase-js";
 import { getJapanDateParts } from "@/lib/date";
@@ -290,7 +289,6 @@ export default async function HomePage() {
   return (
     <>
       <Header />
-      <HashScrollHandler />
       <main>
         <section className="hero">
           <div className="hero-content">

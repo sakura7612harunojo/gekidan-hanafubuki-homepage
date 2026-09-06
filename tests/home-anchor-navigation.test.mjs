@@ -6,7 +6,7 @@ test("劇団員はアンカーリンクで移動し演目セクションは表�
   const header = readFileSync("components/Header.tsx", "utf8");
   const home = readFileSync("app/page.tsx", "utf8");
 
-  assert.match(header, /<Link href="\/#cast">劇団員<\/Link>/);
+  assert.match(header, /<Link href="\/cast">劇団員<\/Link>/);
   assert.doesNotMatch(header, /#repertoire|演目/);
 assert.match(home, /id="cast"/);
   assert.doesNotMatch(home, /id="repertoire"/);
