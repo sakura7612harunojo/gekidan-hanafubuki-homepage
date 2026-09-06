@@ -14,6 +14,14 @@ export const metadata: Metadata = {
   robots: { index:true, follow:true, googleBot:{index:true,follow:true,"max-image-preview":"large","max-snippet":-1,"max-video-preview":-1} },
 };
 
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "劇団花吹雪",
+  "url": "https://www.gekidan-hanafubuki.com",
+  "description": "大衆演劇 劇団花吹雪の公式サイト",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -22,6 +30,12 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(organizationJsonLd),
+          }}
+        />
         <SakuraPetals />
         <GoogleAnalytics />
 {children}        <BackToTopButton />

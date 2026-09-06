@@ -6,8 +6,8 @@ import { CastHeadingSignature } from "@/components/PublicBrandImages";
 import { PublicResponsiveImage } from "@/components/PublicResponsiveImage";
 
 export const metadata: Metadata = {
-  title: "劇団員｜劇団花吹雪",
-  description: "劇団花吹雪の劇団員をご紹介します。",
+  title: { absolute: "劇団員紹介｜劇団花吹雪 大衆演劇 公式サイト" },
+  description: "大衆演劇 劇団花吹雪の劇団員紹介。座長 桜春之丞をはじめ、劇団員のプロフィールをご紹介します。",
   alternates: { canonical: "/cast" },
 };
 
