@@ -186,6 +186,19 @@ function getCastRoleRank(roleName: string | null | undefined) {
   return 99;
 }
 
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "PerformingGroup",
+  name: "劇団花吹雪",
+  url: "https://www.gekidan-hanafubuki.com/",
+  member: {
+    "@type": "Person",
+    name: "桜春之丞",
+    jobTitle: "座長",
+    url: "https://www.gekidan-hanafubuki.com/cast",
+  },
+};
+
 export default async function HomePage() {
   const supabase = createPublicSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -289,6 +302,10 @@ export default async function HomePage() {
   return (
     <>
       <Header />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+      />
       <main>
         <section className="hero">
           <div className="hero-content">
