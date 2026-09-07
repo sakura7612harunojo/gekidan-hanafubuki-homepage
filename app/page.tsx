@@ -1,6 +1,6 @@
 export const metadata: Metadata = {
-  title: { absolute: "劇団花吹雪 公式サイト｜大衆演劇｜桜春之丞・櫻京之介" },
-  description: "劇団花吹雪の公式サイト。大衆演劇の公演予定、本日の演目、劇団員、芝居・舞踊演目、お知らせを掲載しています。座長 桜春之丞・櫻京之介。",
+  title: { absolute: "劇団花吹雪｜桜春之丞｜大衆演劇 公式サイト" },
+  description: "劇団花吹雪の公式サイト。座長 桜春之丞を中心に、公演予定・劇団員・お知らせ・写真など最新情報をご案内します。",
   alternates: { canonical: "/" },
   openGraph: { type:"website", locale:"ja_JP", url:"/", siteName:"劇団花吹雪", title:"劇団花吹雪 公式サイト｜大衆演劇｜桜春之丞・櫻京之介", description:"劇団花吹雪の公式サイト。大衆演劇の公演予定、本日の演目、劇団員、芝居・舞踊演目、お知らせを掲載しています。座長 桜春之丞・櫻京之介。", images:[{url:"/opengraph-image",width:1200,height:630,alt:"劇団花吹雪"}] },
   twitter: { card:"summary_large_image", title:"劇団花吹雪 公式サイト｜大衆演劇｜桜春之丞・櫻京之介", description:"劇団花吹雪の公式サイト。大衆演劇の公演予定、本日の演目、劇団員、芝居・舞踊演目、お知らせを掲載しています。座長 桜春之丞・櫻京之介。", images:["/opengraph-image"] },
