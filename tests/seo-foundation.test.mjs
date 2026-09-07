@@ -23,8 +23,8 @@ test("劇団員ページのSEOタイトルと説明を強化する", () => {
 
   assert.match(
     source,
-    /absolute:\s*"劇団員紹介｜劇団花吹雪 大衆演劇 公式サイト"/
+    /absolute:\s*"桜春之丞｜劇団花吹雪｜劇団員紹介"/
   );
-  assert.match(source, /description:[\s\S]*大衆演劇/);
+  assert.match(source, /description:[\s\S]*桜春之丞[\s\S]*劇団花吹雪/);
   assert.match(source, /桜春之丞/);
 });

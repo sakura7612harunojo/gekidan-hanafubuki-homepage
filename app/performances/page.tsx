@@ -12,10 +12,9 @@ import { createClient } from "@/lib/supabase/server";
 import { getPerformanceVenueMap } from "@/lib/performance-venue-cms";
 export const metadata: Metadata = {
   title: {
-    absolute: "劇団花吹雪 公演予定｜大衆演劇｜桜春之丞・櫻京之介",
+    absolute: "劇団花吹雪 公演予定｜桜春之丞・春之丞の出演予定",
   },
-  description:
-    "大衆演劇 劇団花吹雪の公演予定・公演日程。座長 桜春之丞・櫻京之介の出演公演、劇場、芝居、ラストショー、イベント・ゲスト情報をご案内します。",
+  description: "劇団花吹雪の公演予定、桜春之丞の出演予定をご案内します。劇団花吹雪予定、桜春之丞予定、春之丞予定を確認できます。",
   alternates: {
     canonical: "/performances",
   },
