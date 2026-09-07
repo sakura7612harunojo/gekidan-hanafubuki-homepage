@@ -29,8 +29,13 @@ const personJsonLd = {
   "@context": "https://schema.org",
   "@type": "Person",
   name: "桜春之丞",
+  alternateName: "春之丞",
   jobTitle: "座長",
+  description: "劇団花吹雪 座長・桜春之丞。大衆演劇の役者として活動。",
   url: "https://www.gekidan-hanafubuki.com/cast",
+  sameAs: [
+    "https://twitcasting.tv/oresama5776",
+  ],
   worksFor: {
     "@type": "Organization",
     name: "劇団花吹雪",
