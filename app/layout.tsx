@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import "./globals.css";
 import GoogleAnalytics from "./google-analytics";
 
-import SakuraPetals from "@/components/SakuraPetals";
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.gekidan-hanafubuki.com"),
   title: { default: "劇団花吹雪｜大衆演劇 公式サイト", template: "%s｜劇団花吹雪" },
@@ -50,7 +49,6 @@ export default function RootLayout({
             __html: JSON.stringify(websiteJsonLd),
           }}
         />
-        <SakuraPetals />
         <GoogleAnalytics />
 {children}        <BackToTopButton />
       </body>
