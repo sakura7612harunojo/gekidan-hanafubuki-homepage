@@ -35,6 +35,8 @@ const personJsonLd = {
   url: "https://www.gekidan-hanafubuki.com/cast",
   sameAs: [
     "https://twitcasting.tv/oresama5776",
+    "https://x.com/oresama5776",
+    "https://www.instagram.com/sakura_harunojo/",
   ],
   worksFor: {
     "@type": "Organization",

@@ -13,3 +13,10 @@ test("桜春之丞のPerson構造化データに本人プロフィール情報�
   assert.match(source, /sameAs:/);
   assert.match(source, /https:\/\/twitcasting\.tv\/oresama5776/);
 });
+
+test("桜春之丞のPerson構造化データに公式SNSを含める", () => {
+  const source = readFileSync("app/cast/page.tsx", "utf8");
+
+  assert.match(source, /https:\/\/x\.com\/oresama5776/);
+  assert.match(source, /https:\/\/www\.instagram\.com\/sakura_harunojo\//);
+});
