@@ -10,7 +10,7 @@ import type { Metadata } from "next";
 import { Header } from "@/components/Header";
 import { createClient as createPublicSupabaseClient } from "@supabase/supabase-js";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 type NewsItem = {
   id: string;
