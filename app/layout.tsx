@@ -1,4 +1,5 @@
 import BackToTopButton from "@/components/BackToTopButton";
+import SmoothHashLinks from "@/components/SmoothHashLinks";
 import type { Metadata } from "next";
 import "./globals.css";
 import GoogleAnalytics from "./google-analytics";
@@ -50,6 +51,7 @@ export default function RootLayout({
           }}
         />
         <GoogleAnalytics />
+        <SmoothHashLinks />
 {children}        <BackToTopButton />
       </body>
     </html>
