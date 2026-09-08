@@ -213,7 +213,7 @@ export default async function HomePage() {
   const today = getJapanDateParts();
   const currentMonth = today.iso.slice(0, 7);
 
-  const [{ data: todayData }, { data: upcomingData }, { data: members }, { data: works }, { data: galleryData }, currentVenue] = await Promise.all([
+  const [{ data: todayData }, { data: upcomingData }, { data: members }, { data: galleryData }, currentVenue] = await Promise.all([
     supabase
       .from("performances")
       .select("id,performance_date,venue_name,session_type,event_name,play_title,last_show_title,night_show_title")
@@ -227,8 +227,7 @@ export default async function HomePage() {
       .gt("performance_date", today.iso)
       .order("performance_date")
       .limit(5),
-    supabase.from("members").select("*,photo_path").eq("is_public", true).order("sort_order"),
-    supabase.from("works").select("*").eq("is_public", true).order("title").limit(6),
+    supabase.from("members").select("id,role_name,stage_name,profile,photo_path").eq("is_public", true).order("sort_order"),
     supabase
       .from("gallery")
       .select("id,title,storage_path,created_at")
