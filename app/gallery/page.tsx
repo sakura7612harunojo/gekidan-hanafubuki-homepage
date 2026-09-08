@@ -3,7 +3,7 @@ import { Header } from "@/components/Header";
 import { FanPhotoSubmitForm } from "@/components/FanPhotoSubmitForm";
 import { createClient as createPublicSupabaseClient } from "@supabase/supabase-js";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: { absolute: "写真｜劇団花吹雪" },

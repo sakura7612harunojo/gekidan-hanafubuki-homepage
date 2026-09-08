@@ -31,7 +31,7 @@ test("公演予定ページはperformanceVenuesを最初の利用より前に取
   assert.ok(fn >= 0);
   const body = schedule.slice(fn);
   const declaration = body.indexOf(
-    "const performanceVenues = await getPerformanceVenueMap();",
+    "const performanceVenues = await getPerformanceVenueMap(supabase);",
   );
   assert.ok(declaration >= 0, "CMS会場データ取得がありません");
 

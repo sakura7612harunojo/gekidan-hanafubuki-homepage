@@ -51,7 +51,7 @@ test("トップページはCMSの今月公演先を優先する", () => {
 
 test("公演予定ページはCMSの月別公演先を利用できる", () => {
   assert.match(performances, /getPerformanceVenueMap/);
-  assert.match(performances, /await\s+getPerformanceVenueMap\(\)/);
+  assert.match(performances, /await\s+getPerformanceVenueMap\(supabase\)/);
 });
 
 test("注意事項をトップの本日の公演と公演予定の両方に表示する", () => {

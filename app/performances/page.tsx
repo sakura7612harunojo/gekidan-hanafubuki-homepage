@@ -7,7 +7,7 @@ import {
   PerformanceCard,
   type Performance,
 } from "@/components/PerformanceCard";
-import { createClient } from "@/lib/supabase/server";
+import { createClient as createPublicSupabaseClient } from "@supabase/supabase-js";
 
 import { getPerformanceVenueMap } from "@/lib/performance-venue-cms";
 export const metadata: Metadata = {
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   },
 };
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 function getJapanToday() {
   const parts = new Intl.DateTimeFormat("en-US", {
@@ -58,14 +58,17 @@ function monthLabel(month: string, currentYear: string) {
 }
 
 export default async function PerformancesPage() {
-  const performanceVenues = await getPerformanceVenueMap();
+  const supabase = createPublicSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
+  );
+
+  const performanceVenues = await getPerformanceVenueMap(supabase);
 
   const today = getJapanToday();
   const currentMonth = today.slice(0, 7);
   const currentYear = today.slice(0, 4);
   const nextMonth = shiftMonth(currentMonth, 1);
-
-  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("performances")
