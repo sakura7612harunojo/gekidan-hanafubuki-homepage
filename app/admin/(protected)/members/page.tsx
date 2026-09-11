@@ -15,6 +15,7 @@ async function createMember(formData: FormData) {
     stage_name: String(formData.get("stage_name") || "").trim(),
     role_name: String(formData.get("role_name") || "").trim(),
     profile: String(formData.get("profile") || "").trim(),
+    instagram_url: String(formData.get("instagram_url") || "").trim(),
     sort_order: Number(formData.get("sort_order") || 0),
     is_public: formData.get("is_public") === "on",
   });
@@ -23,6 +24,7 @@ async function createMember(formData: FormData) {
     if (error.code === "23505") {
       revalidatePath("/admin/members");
       revalidatePath("/");
+  revalidatePath("/cast");
       return;
     }
 
@@ -31,6 +33,7 @@ async function createMember(formData: FormData) {
 
   revalidatePath("/admin/members");
   revalidatePath("/");
+  revalidatePath("/cast");
 }
 
 async function updateMember(formData: FormData) {
@@ -41,7 +44,7 @@ async function updateMember(formData: FormData) {
 
   const { data: current, error: currentError } = await supabase
     .from("members")
-    .select("role_name,profile,photo_path")
+    .select("role_name,profile,photo_path,instagram_url")
     .eq("id", id)
     .single();
 
@@ -57,6 +60,9 @@ async function updateMember(formData: FormData) {
       profile: formData.has("profile")
         ? String(formData.get("profile") ?? "").trim()
         : current.profile ?? "",
+      instagram_url: formData.has("instagram_url")
+        ? String(formData.get("instagram_url") ?? "").trim()
+        : current.instagram_url ?? "",
       sort_order: Number(formData.get("sort_order") || 0),
       is_public: formData.get("is_public") === "on",
     })
@@ -66,6 +72,7 @@ async function updateMember(formData: FormData) {
 
   revalidatePath("/admin/members");
   revalidatePath("/");
+  revalidatePath("/cast");
 }
 
 async function deleteMember(formData: FormData) {
@@ -80,6 +87,7 @@ async function deleteMember(formData: FormData) {
 
   revalidatePath("/admin/members");
   revalidatePath("/");
+  revalidatePath("/cast");
 }
 
 
@@ -133,6 +141,7 @@ async function updateMemberPhoto(formData: FormData) {
   }
 
   revalidatePath("/");
+  revalidatePath("/cast");
   revalidatePath("/admin/members");
 }
 
@@ -147,7 +156,7 @@ export default async function MembersPage({
 
   let membersQuery = supabase
     .from("members")
-    .select("id,stage_name,role_name,profile,sort_order,is_public,photo_path")
+    .select("id,stage_name,role_name,profile,instagram_url,sort_order,is_public,photo_path")
     .order("sort_order")
     .order("stage_name");
 
@@ -200,6 +209,16 @@ export default async function MembersPage({
                 name="profile"
                 rows={5}
                 style={{ ...inputStyle, resize: "vertical" }}
+              />
+            </label>
+
+            <label>
+              Instagram
+              <input
+                name="instagram_url"
+                type="url"
+                placeholder="https://www.instagram.com/..."
+                style={inputStyle}
               />
             </label>
 
@@ -263,6 +282,17 @@ export default async function MembersPage({
                         rows={5}
                         defaultValue={member.profile ?? ""}
                         style={{ ...inputStyle, resize: "vertical" }}
+                      />
+                    </label>
+
+                    <label>
+                      Instagram
+                      <input
+                        name="instagram_url"
+                        type="url"
+                        defaultValue={member.instagram_url ?? ""}
+                        placeholder="https://www.instagram.com/..."
+                        style={inputStyle}
                       />
                     </label>
 

@@ -110,7 +110,20 @@ export default async function CastPage() {
       <h3>{member.stage_name}</h3>
 
       {member.profile && member.profile !== "プロフィール準備中" ? (
-        <p>{member.profile}</p>
+        <p style={{ whiteSpace: "pre-line" }}>{member.profile}</p>
+      ) : null}
+
+      {member.instagram_url ? (
+        <p>
+          <a
+            href={member.instagram_url}
+            target="_blank"
+            rel="noreferrer"
+            style={{ color: "#d9c18a" }}
+          >
+            Instagram
+          </a>
+        </p>
       ) : null}
     </article>
   );
