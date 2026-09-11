@@ -71,6 +71,13 @@ export const PERFORMANCE_VENUES:
       "通常 昼の部 12:30〜",
       "通常 夜の部 17:30〜",
     ],
+    specialDates: [
+      "11月1日（日） 初日",
+      "11月18日（水） 昼一回",
+      "11月19日（木） 休演",
+      "11月20日（金） 休演",
+      "11月28日（土） 千穐楽・昼一回",
+    ],
     mapUrl:
       "https://share.google/7SsS0p0GhH7YylkhC",
   },
@@ -89,4 +96,32 @@ export const PERFORMANCE_VENUES:
     websiteUrl:
       "https://shikoku-kenkomura.com/",
   },
+  "2027-01": {
+    month: "2027-01",
+    name: "瀬戸大橋温泉「やま幸」",
+    address: "岡山県倉敷市下庄140-1",
+    tel: "086-462-1126",
+    access:
+      "岡山駅からバスで約40分、倉敷駅から約30分。瀬戸大橋温泉前バス停から徒歩約1分。",
+    schedule: [
+      "月〜土 昼の部 13:00〜15:30",
+      "月〜木・土 夜の部 19:00〜20:00",
+      "金曜 夜の部休演",
+      "日・祝 夜の部 18:30〜21:00",
+    ],
+    websiteUrl:
+      "https://s-yamakou.co.jp/",
+  },
+
+  "2027-02": {
+    month: "2027-02",
+    name: "ホテル龍登園",
+    address: "佐賀県佐賀市大和町大字梅野120",
+    tel: "0952-62-3111",
+    access:
+      "佐賀駅からバス・タクシー等でアクセス。最寄りバス停はユースピア入口。",
+    websiteUrl:
+      "https://www.ryutouen.co.jp/",
+  },
+
 };
