@@ -367,21 +367,30 @@ export default async function AdminGalleryPage({
 
           <label>
             写真
+            <span
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: "100%",
+                minHeight: 48,
+                marginTop: 8,
+                border: "1px solid #d4a83d",
+                background: "#17130d",
+                color: "#d9c18a",
+                fontWeight: 700,
+                cursor: "pointer",
+                boxSizing: "border-box",
+              }}
+            >
+              写真・アルバムから選ぶ
+            </span>
             <input
               type="file"
               name="file"
               accept="image/jpeg,image/png,image/webp"
               required
-              style={{
-                display: "block",
-                width: "100%",
-                boxSizing: "border-box",
-                marginTop: 8,
-                padding: 12,
-                background: "#080706",
-                border: "1px solid #3a342c",
-                color: "#eee7dc",
-              }}
+              style={{ display: "none" }}
             />
           </label>
 
