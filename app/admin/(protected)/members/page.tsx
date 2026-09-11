@@ -356,12 +356,30 @@ export default async function MembersPage({
                   <input type="hidden" name="member_id" value={member.id} />
                   <label>
                     写真
+                    <span
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: "100%",
+                        minHeight: 48,
+                        marginTop: 8,
+                        border: "1px solid #d4a83d",
+                        background: "#17130d",
+                        color: "#d9c18a",
+                        fontWeight: 700,
+                        cursor: "pointer",
+                        boxSizing: "border-box",
+                      }}
+                    >
+                      写真・アルバムから選ぶ
+                    </span>
                     <input
                       name="member_photo"
                       type="file"
                       accept="image/*"
                       required
-                      style={inputStyle}
+                      style={{ display: "none" }}
                     />
                   </label>
                   <AdminSubmitButton pendingLabel="保存中…" style={goldButton}>
