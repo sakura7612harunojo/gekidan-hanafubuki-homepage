@@ -9,6 +9,7 @@ export function Header() {
         <Link href="/performances">公演予定</Link>
         <Link href="/cast">劇団員</Link>
         <Link href="/gallery">写真</Link>
+        <Link href="/recruit">座員募集</Link>
         <Link href="/news">お知らせ</Link>
 </nav>
     </header>
