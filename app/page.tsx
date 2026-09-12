@@ -213,7 +213,7 @@ export default async function HomePage() {
   const today = getJapanDateParts();
   const currentMonth = today.iso.slice(0, 7);
 
-  const [{ data: todayData }, { data: upcomingData }, { data: members }, { data: galleryData }, currentVenue] = await Promise.all([
+  const [{ data: todayData }, { data: upcomingData }, { data: members }, { data: newsData }, { data: galleryData }, currentVenue] = await Promise.all([
     supabase
       .from("performances")
       .select("id,performance_date,venue_name,session_type,event_name,play_title,last_show_title,night_show_title")
@@ -228,6 +228,12 @@ export default async function HomePage() {
       .order("performance_date")
       .limit(5),
     supabase.from("members").select("id,role_name,stage_name,profile,photo_path").eq("is_public", true).order("sort_order"),
+    supabase
+      .from("news")
+      .select("id,category,title,published_at")
+      .eq("status", "published")
+      .order("published_at", { ascending: false })
+      .limit(3),
     supabase
       .from("gallery")
       .select("id,title,storage_path,created_at")
@@ -451,6 +457,34 @@ export default async function HomePage() {
         </section>
 
 
+
+      <section className="section" id="news">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">NEWS</p>
+            <h2>お知らせ</h2>
+          </div>
+          <a className="btn" href="/news">お知らせ一覧を見る</a>
+        </div>
+
+        {(newsData ?? []).length > 0 ? (
+          <div className="grid">
+            {(newsData ?? []).map((item) => (
+              <article className="card" key={item.id}>
+                <small>{item.category || "お知らせ"}</small>
+                <h3>{item.title}</h3>
+                {item.published_at ? (
+                  <p>{String(item.published_at).slice(0, 10).replaceAll("-", ".")}</p>
+                ) : null}
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="empty-state">
+            <p>現在、お知らせはありません。</p>
+          </div>
+        )}
+      </section>
 
       <section className="section" id="hanabuki-today">
         <div className="section-heading">
