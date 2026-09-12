@@ -458,6 +458,35 @@ export default async function HomePage() {
 
 
 
+      <section className="section" id="member-links">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">MEMBERS & FAN CLUB</p>
+            <h2>会員・ファンクラブ</h2>
+          </div>
+        </div>
+
+        <div className="actions">
+          <a
+            className="btn primary"
+            href="https://select-type.com/member/login/?mi=kugQA_2_3CY&w_flg=0"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            会員限定予約
+          </a>
+
+          <a
+            className="btn"
+            href="https://gekidanhanafubuki.amebaownd.com"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            劇団花吹雪ファンクラブ
+          </a>
+        </div>
+      </section>
+
       <section className="section" id="news">
         <div className="section-heading">
           <div>
