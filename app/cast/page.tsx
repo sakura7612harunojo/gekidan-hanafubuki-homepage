@@ -125,6 +125,18 @@ export default async function CastPage() {
           </a>
         </p>
       ) : null}
+
+      {member.x_url ? (
+        <p><a href={member.x_url} target="_blank" rel="noreferrer" style={{ color: "#d9c18a" }}>X</a></p>
+      ) : null}
+
+      {member.twitcasting_url ? (
+        <p><a href={member.twitcasting_url} target="_blank" rel="noreferrer" style={{ color: "#d9c18a" }}>ツイキャス</a></p>
+      ) : null}
+
+      {member.tiktok_url ? (
+        <p><a href={member.tiktok_url} target="_blank" rel="noreferrer" style={{ color: "#d9c18a" }}>TikTok</a></p>
+      ) : null}
     </article>
   );
 

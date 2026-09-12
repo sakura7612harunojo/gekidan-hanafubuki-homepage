@@ -16,6 +16,9 @@ async function createMember(formData: FormData) {
     role_name: String(formData.get("role_name") || "").trim(),
     profile: String(formData.get("profile") || "").trim(),
     instagram_url: String(formData.get("instagram_url") || "").trim(),
+    x_url: String(formData.get("x_url") || "").trim(),
+    twitcasting_url: String(formData.get("twitcasting_url") || "").trim(),
+    tiktok_url: String(formData.get("tiktok_url") || "").trim(),
     sort_order: Number(formData.get("sort_order") || 0),
     is_public: formData.get("is_public") === "on",
   });
@@ -44,7 +47,7 @@ async function updateMember(formData: FormData) {
 
   const { data: current, error: currentError } = await supabase
     .from("members")
-    .select("role_name,profile,photo_path,instagram_url")
+    .select("role_name,profile,photo_path,instagram_url,x_url,twitcasting_url,tiktok_url")
     .eq("id", id)
     .single();
 
@@ -63,6 +66,15 @@ async function updateMember(formData: FormData) {
       instagram_url: formData.has("instagram_url")
         ? String(formData.get("instagram_url") ?? "").trim()
         : current.instagram_url ?? "",
+      x_url: formData.has("x_url")
+        ? String(formData.get("x_url") ?? "").trim()
+        : current.x_url ?? "",
+      twitcasting_url: formData.has("twitcasting_url")
+        ? String(formData.get("twitcasting_url") ?? "").trim()
+        : current.twitcasting_url ?? "",
+      tiktok_url: formData.has("tiktok_url")
+        ? String(formData.get("tiktok_url") ?? "").trim()
+        : current.tiktok_url ?? "",
       sort_order: Number(formData.get("sort_order") || 0),
       is_public: formData.get("is_public") === "on",
     })
@@ -156,7 +168,7 @@ export default async function MembersPage({
 
   let membersQuery = supabase
     .from("members")
-    .select("id,stage_name,role_name,profile,instagram_url,sort_order,is_public,photo_path")
+    .select("id,stage_name,role_name,profile,instagram_url,x_url,twitcasting_url,tiktok_url,sort_order,is_public,photo_path")
     .order("sort_order")
     .order("stage_name");
 
@@ -220,6 +232,21 @@ export default async function MembersPage({
                 placeholder="https://www.instagram.com/..."
                 style={inputStyle}
               />
+            </label>
+
+            <label>
+              X
+              <input name="x_url" type="url" style={inputStyle} />
+            </label>
+
+            <label>
+              ツイキャス
+              <input name="twitcasting_url" type="url" style={inputStyle} />
+            </label>
+
+            <label>
+              TikTok
+              <input name="tiktok_url" type="url" style={inputStyle} />
             </label>
 
             <label>
@@ -292,6 +319,36 @@ export default async function MembersPage({
                         type="url"
                         defaultValue={member.instagram_url ?? ""}
                         placeholder="https://www.instagram.com/..."
+                        style={inputStyle}
+                      />
+                    </label>
+
+                    <label>
+                      X
+                      <input
+                        name="x_url"
+                        type="url"
+                        defaultValue={member.x_url ?? ""}
+                        style={inputStyle}
+                      />
+                    </label>
+
+                    <label>
+                      ツイキャス
+                      <input
+                        name="twitcasting_url"
+                        type="url"
+                        defaultValue={member.twitcasting_url ?? ""}
+                        style={inputStyle}
+                      />
+                    </label>
+
+                    <label>
+                      TikTok
+                      <input
+                        name="tiktok_url"
+                        type="url"
+                        defaultValue={member.tiktok_url ?? ""}
                         style={inputStyle}
                       />
                     </label>
