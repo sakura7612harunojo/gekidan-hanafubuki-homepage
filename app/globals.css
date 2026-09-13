@@ -734,3 +734,37 @@ body:has(.header) .performance-venue-card-readability a {
     margin-top: 22px;
   }
 }
+
+/* HANABUKI_MOBILE_TODAY_COMPACT */
+@media (max-width: 760px) {
+  .today-section {
+    padding-top: 36px;
+    padding-bottom: 36px;
+  }
+
+  .today-section .section-heading {
+    margin-bottom: 18px;
+  }
+
+  .today-section .performance-card-featured .performance-card-top {
+    padding: 15px 16px;
+    gap: 10px;
+  }
+
+  .today-section .performance-card-featured .performance-card-body {
+    padding: 16px;
+  }
+
+  .today-section .performance-card-featured .performance-card-body h3 {
+    margin: 4px 0 10px;
+  }
+
+  .today-section .program-list {
+    margin-top: 12px;
+  }
+
+  .today-section .program-row {
+    padding: 8px 0;
+    gap: 12px;
+  }
+}
