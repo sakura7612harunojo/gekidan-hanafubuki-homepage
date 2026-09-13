@@ -699,3 +699,38 @@ body:has(.header) .performance-venue-card-readability a {
     border-bottom: 0;
   }
 }
+
+/* HANABUKI_MOBILE_HERO_COMPACT */
+@media (max-width: 760px) {
+  body:has(.header) .hero {
+    min-height: 0;
+    padding: 48px 20px 44px;
+    align-items: center;
+  }
+
+  body:has(.header) .hero-title-with-mark {
+    gap: 10px;
+    flex-wrap: nowrap;
+  }
+
+  body:has(.header) .hero-title-with-mark h1 {
+    white-space: nowrap;
+    font-size: clamp(38px, 11.5vw, 48px);
+    line-height: 1;
+  }
+
+  body:has(.header) .hero-title-mark {
+    width: 64px;
+  }
+
+  body:has(.header) .hero .lead {
+    color: #6f4e5a;
+    font-size: 14px;
+    line-height: 1.8;
+    margin-top: 22px;
+  }
+
+  body:has(.header) .actions {
+    margin-top: 22px;
+  }
+}
