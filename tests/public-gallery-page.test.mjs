@@ -22,7 +22,7 @@ test("公開ギャラリーは公開済み写真だけを表示するページ�
 
 test("公開サイトのメニューから写真ページへ移動できる", () => {
   const source = readFileSync(headerPath, "utf8");
-  assert.match(source, /<Link href="\/gallery">写真<\/Link>/);
+  assert.match(source, /<Link\s+href="\/gallery"[^>]*>写真<\/Link>/);
 });
 
 test("ギャラリー写真はPCで大きくなりすぎず中央に並ぶ", () => {

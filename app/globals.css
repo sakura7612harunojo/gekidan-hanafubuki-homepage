@@ -165,7 +165,6 @@ button, input, textarea, select { font: inherit; }
   .header { padding: 12px 18px; overflow-x: auto; }
   .brand { font-size: 18px; }
   .nav { gap: 15px; font-size: 12px; white-space: nowrap; }
-  .nav a:nth-child(6) { display: none; }
   .hero { min-height: 64vh; padding: 70px 22px 56px; }
   .hero h1 { font-size: clamp(46px, 16vw, 74px); }
   .section, .schedule-hero { padding-left: 20px; padding-right: 20px; }
@@ -628,4 +627,75 @@ body:has(.header) .performance-venue-card-readability .venue-info-label {
 
 body:has(.header) .performance-venue-card-readability a {
   color: #e0b642 !important;
+}
+
+
+/* HANABUKI_MOBILE_MENU */
+.mobile-menu-button {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .header {
+    position: sticky;
+    flex-wrap: nowrap;
+    overflow: visible;
+    min-height: 60px;
+    padding: 10px 16px;
+  }
+
+  .header .brand {
+    margin-right: 0;
+    font-size: 18px;
+  }
+
+  .mobile-menu-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+    padding: 9px 12px;
+    border: 1px solid #d9b54a;
+    border-radius: 8px;
+    background: #fff;
+    color: #6b3a4d;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .header .nav {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    width: 100%;
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 6px 0;
+    background: rgba(255, 250, 252, 0.99);
+    border-top: 1px solid #f0d7e2;
+    border-bottom: 1px solid #f0d7e2;
+    box-shadow: 0 12px 24px rgba(112, 49, 76, 0.12);
+  }
+
+  .header .nav.mobile-menu-open {
+    display: flex;
+  }
+
+  .header .nav a {
+    display: block;
+    width: 100%;
+    padding: 13px 18px;
+    font-size: 15px;
+    line-height: 1.4;
+    white-space: nowrap;
+    border-bottom: 1px solid #f4e3ea;
+  }
+
+  .header .nav a:last-child {
+    border-bottom: 0;
+  }
 }
