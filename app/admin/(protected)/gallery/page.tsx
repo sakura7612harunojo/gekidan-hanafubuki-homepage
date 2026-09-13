@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { AdminSubmitButton } from "@/components/admin/AdminSubmitButton";
@@ -313,6 +314,12 @@ export default async function AdminGalleryPage({
       }}
     >
       <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+        <div style={{ marginBottom: 32 }}>
+          <Link href="/admin" style={{ color: "#d4a83d" }}>
+            ← 管理ダッシュボード
+          </Link>
+        </div>
+
         <p
           style={{
             color: "#d4a83d",
