@@ -351,14 +351,20 @@ export default async function PerformancesPage() {
           }
 
           .performance-month-tabs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(82px, 1fr));
             gap: 7px;
+            overflow-x: visible;
+            width: 100%;
           }
 
           .performance-month-tab {
-            min-width: 68px;
+            min-width: 0;
+            width: 100%;
             min-height: 44px;
-            padding: 0 14px;
-            font-size: 15px;
+            padding: 0 6px;
+            font-size: 13px;
+            box-sizing: border-box;
           }
 
           .performance-month-section {
