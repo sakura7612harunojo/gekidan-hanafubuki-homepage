@@ -768,3 +768,36 @@ body:has(.header) .performance-venue-card-readability a {
     gap: 12px;
   }
 }
+
+/* HANABUKI_MOBILE_MONTHLY_SPACING */
+@media (max-width: 760px) {
+  .today-section {
+    padding-bottom: 24px;
+  }
+
+  #monthly-venue {
+    padding-top: 24px;
+  }
+}
+
+/* HANABUKI_MOBILE_MONTHLY_SPACING */
+@media (max-width: 760px) {
+  .today-section {
+    padding-bottom: 24px;
+  }
+
+  #monthly-venue {
+    padding-top: 24px;
+  }
+}
+
+/* HANABUKI_MOBILE_MONTHLY_SPACING */
+@media (max-width: 760px) {
+  .today-section {
+    padding-bottom: 24px;
+  }
+
+  #monthly-venue {
+    padding-top: 24px;
+  }
+}
