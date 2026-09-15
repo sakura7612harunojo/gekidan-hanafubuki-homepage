@@ -9,6 +9,9 @@ test("劇団員専用ページ /cast がある", () => {
 test("ヘッダーの劇団員は /cast へ移動する", () => {
   const source = readFileSync("components/Header.tsx", "utf8");
 
-  assert.match(source, /<Link href="\/cast">劇団員<\/Link>/);
+  assert.match(
+    source,
+    /<Link\b[^>]*\bhref="\/cast"[^>]*>劇団員<\/Link>/
+  );
   assert.doesNotMatch(source, /href="\/#cast"/);
 });
