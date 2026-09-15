@@ -24,6 +24,9 @@ export type PublicPerformanceVenue = {
   reservationTel?: string;
   access: string;
   schedule: string[];
+  scheduleOverride?: string[];
+  specialDates?: string[];
+  admissionFees?: string[];
   websiteUrl: string;
   mapUrl: string;
 
@@ -138,10 +141,39 @@ export async function getPerformanceVenueMap(
   const fallback =
     PERFORMANCE_VENUES as unknown as Record<string, PublicPerformanceVenue>;
 
-  return {
-    ...fallback,
-    ...cms,
-  };
+  const months = new Set([
+    ...Object.keys(fallback),
+    ...Object.keys(cms),
+  ]);
+
+  return Object.fromEntries(
+    [...months].map((month) => {
+      const fallbackVenue = fallback[month];
+      const cmsVenue = cms[month];
+
+      if (!fallbackVenue) {
+        return [month, cmsVenue];
+      }
+
+      if (!cmsVenue) {
+        return [month, fallbackVenue];
+      }
+
+      return [
+        month,
+        {
+          ...fallbackVenue,
+          ...cmsVenue,
+          scheduleOverride:
+            fallbackVenue.scheduleOverride,
+          specialDates:
+            fallbackVenue.specialDates,
+          admissionFees:
+            fallbackVenue.admissionFees,
+        },
+      ];
+    }),
+  );
 }
 
 export async function getPerformanceVenueForMonth(

@@ -6,7 +6,9 @@ export type PerformanceVenueInfo = {
   reservationTel?: string;
   access?: string;
   schedule?: string[];
+  scheduleOverride?: string[];
   specialDates?: string[];
+  admissionFees?: string[];
   websiteUrl?: string;
   mapUrl?: string;
 };
@@ -71,8 +73,24 @@ export const PERFORMANCE_VENUES:
       "通常 昼の部 12:30〜",
       "通常 夜の部 17:30〜",
     ],
+    scheduleOverride: [
+      "昼の部 開場 11:30／開演 12:30",
+      "夜の部 開場 17:00／開演 17:30",
+    ],
+    admissionFees: [
+      "大人 2,100円",
+      "シルバー割引 1,800円（65才〜）",
+      "障害者割引 1,400円",
+      "前売券 1,600円",
+      "小人（4才〜）1,000円",
+      "ショー割引 1,000円",
+      "招待券（劇場にて配布）",
+      "サービスDAY（一律）1,200円",
+    ],
     specialDates: [
       "11月1日（日） 初日",
+      "11月6日 サービスDAY",
+      "11月17日 サービスDAY",
       "11月18日（水） 昼一回",
       "11月19日（木） 休演",
       "11月20日（金） 休演",

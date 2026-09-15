@@ -7,6 +7,11 @@ export function PerformanceVenueCard({
 }: {
   venue: PerformanceVenueInfo;
 }) {
+  const visibleSchedule =
+    venue.scheduleOverride?.length
+      ? venue.scheduleOverride
+      : venue.schedule;
+
   return (
     <aside className="venue-info-card performance-venue-card-readability">
       <style>{`
@@ -163,13 +168,25 @@ export function PerformanceVenueCard({
           </div>
         ) : null}
 
-        {venue.schedule?.length ? (
+        {visibleSchedule?.length ? (
           <div className="venue-info-item">
             <span className="venue-info-label">
               公演時間
             </span>
 
-            {venue.schedule.map((item) => (
+            {visibleSchedule.map((item) => (
+              <div key={item}>{item}</div>
+            ))}
+          </div>
+        ) : null}
+
+        {venue.admissionFees?.length ? (
+          <div className="venue-info-item">
+            <span className="venue-info-label">
+              入場料
+            </span>
+
+            {venue.admissionFees.map((item) => (
               <div key={item}>{item}</div>
             ))}
           </div>
