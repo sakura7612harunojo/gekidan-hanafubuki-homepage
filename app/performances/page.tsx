@@ -68,7 +68,6 @@ export default async function PerformancesPage() {
   const today = getJapanToday();
   const currentMonth = today.slice(0, 7);
   const currentYear = today.slice(0, 4);
-  const nextMonth = shiftMonth(currentMonth, 1);
 
   const { data, error } = await supabase
     .from("performances")
@@ -76,26 +75,67 @@ export default async function PerformancesPage() {
       "id,performance_date,venue_name,session_type,event_name,play_title,last_show_title,night_show_title,has_first_part,is_public",
     )
     .eq("is_public", true)
-    .gte("performance_date", today)
     .order("performance_date", {
       ascending: true,
     })
-    .limit(400);
+    .limit(1000);
 
   if (error) {
     console.error("Performances fetch error:", error.message);
   }
 
-  const performances = (data ?? []) as Performance[];
+  const allPerformances = (data ?? []) as Performance[];
 
-  const performanceMonths = performances.map(
+  const currentMonthPerformances = allPerformances.filter(
+    (performance) =>
+      performance.performance_date.startsWith(currentMonth),
+  );
+
+  const closingPerformance =
+    currentMonthPerformances.find((performance) =>
+      /千穐楽|千秋楽/.test(performance.event_name ?? ""),
+    ) ?? null;
+
+  const fallbackLastPerformanceDate =
+    currentMonthPerformances
+      .map((performance) => performance.performance_date)
+      .sort()
+      .at(-1) ?? null;
+
+  const currentMonthClosingDate =
+    closingPerformance?.performance_date ??
+    fallbackLastPerformanceDate;
+
+  const mainMonth =
+    currentMonthClosingDate &&
+    today > currentMonthClosingDate
+      ? shiftMonth(currentMonth, 1)
+      : currentMonth;
+
+  const nextMonth = shiftMonth(mainMonth, 1);
+
+  const upcomingPerformances = allPerformances.filter(
+    (performance) => performance.performance_date >= today,
+  );
+
+  const pastPerformances = allPerformances.filter(
+    (performance) =>
+      performance.performance_date.slice(0, 7) < mainMonth,
+  );
+
+  const performanceMonths = upcomingPerformances.map(
+    (performance) =>
+      performance.performance_date.slice(0, 7),
+  );
+
+  const pastPerformanceMonths = pastPerformances.map(
     (performance) =>
       performance.performance_date.slice(0, 7),
   );
 
   const venueMonths = Object.keys(
     performanceVenues,
-  ).filter((month) => month >= currentMonth);
+  ).filter((month) => month >= mainMonth);
 
   const monthKeys = Array.from(
     new Set([
@@ -104,19 +144,34 @@ export default async function PerformancesPage() {
     ]),
   ).sort();
 
+  const pastMonthKeys = Array.from(
+    new Set(pastPerformanceMonths),
+  ).sort().reverse();
+
   const performancesByMonth = new Map<string, Performance[]>();
+  const pastPerformancesByMonth = new Map<string, Performance[]>();
 
   for (const month of monthKeys) {
     performancesByMonth.set(
       month,
-      performances.filter((performance) =>
+      upcomingPerformances.filter((performance) =>
         performance.performance_date.startsWith(month),
       ),
     );
   }
 
-  const currentMonthExists = monthKeys.includes(currentMonth);
+  for (const month of pastMonthKeys) {
+    pastPerformancesByMonth.set(
+      month,
+      pastPerformances.filter((performance) =>
+        performance.performance_date.startsWith(month),
+      ),
+    );
+  }
+
+  const mainMonthExists = monthKeys.includes(mainMonth);
   const nextMonthExists = monthKeys.includes(nextMonth);
+  const pastMonthExists = pastMonthKeys.length > 0;
   return (
     <>
       <Header />
@@ -141,27 +196,31 @@ export default async function PerformancesPage() {
           <div>※終演時間は公演内容により異なります。</div>
         </div>
 
-          <p>劇団花吹雪の今後の公演予定をご案内します。</p>
+          <p>劇団花吹雪の今後の公演予定と、過去の公演記録をご案内します。</p>
         </section>
 
         <section className="section">
-          {performances.length > 0 ? (
+          {monthKeys.length > 0 || pastMonthKeys.length > 0 ? (
             <>
               <nav
                 className="performance-month-navigation"
                 aria-label="公演予定の月選択"
               >
                 <div className="performance-quick-links">
-                  {currentMonthExists ? (
+                  {mainMonthExists ? (
                     <a
-                      href={`#month-${currentMonth}`}
+                      href={`#month-${mainMonth}`}
                       className="performance-quick-button performance-quick-button-primary"
                     >
-                      今月
+                      {mainMonth === currentMonth
+                        ? "今月"
+                        : monthLabel(mainMonth, currentYear)}
                     </a>
                   ) : (
                     <span className="performance-quick-button performance-quick-button-disabled">
-                      今月
+                      {mainMonth === currentMonth
+                        ? "今月"
+                        : monthLabel(mainMonth, currentYear)}
                     </span>
                   )}
 
@@ -175,6 +234,19 @@ export default async function PerformancesPage() {
                   ) : (
                     <span className="performance-quick-button performance-quick-button-disabled">
                       翌月
+                    </span>
+                  )}
+
+                  {pastMonthExists ? (
+                    <a
+                      href="#past-performances"
+                      className="performance-quick-button"
+                    >
+                      過去
+                    </a>
+                  ) : (
+                    <span className="performance-quick-button performance-quick-button-disabled">
+                      過去
                     </span>
                   )}
                 </div>
@@ -234,6 +306,63 @@ export default async function PerformancesPage() {
                   );
                 })}
               </div>
+
+              {pastMonthKeys.length > 0 ? (
+                <section
+                  id="past-performances"
+                  className="performance-past-group"
+                >
+                  <div className="performance-past-title">
+                    <span>過去の公演</span>
+                    <small>これまでの公演予定・公演先</small>
+                  </div>
+
+                  <div className="performance-month-tabs performance-past-tabs">
+                    {pastMonthKeys.map((month) => (
+                      <a
+                        key={month}
+                        href={`#month-${month}`}
+                        className="performance-month-tab"
+                      >
+                        {monthLabel(month, currentYear)}
+                      </a>
+                    ))}
+                  </div>
+
+                  {pastMonthKeys.map((month) => {
+                    const monthPerformances =
+                      pastPerformancesByMonth.get(month) ?? [];
+
+                    return (
+                      <section
+                        key={month}
+                        id={`month-${month}`}
+                        className="performance-month-section"
+                      >
+                        <div className="performance-month-heading">
+                          <span>{monthLabel(month, currentYear)}</span>
+                          <small>{`${monthPerformances.length}日分`}</small>
+                        </div>
+
+                        {performanceVenues[month] ? (
+                          <PerformanceVenueCard
+                            venue={performanceVenues[month]}
+                          />
+                        ) : null}
+
+                        <div className="schedule-grid">
+                          {monthPerformances.map((performance) => (
+                            <PerformanceCard
+                              key={performance.id}
+                              performance={performance}
+                            />
+                          ))}
+                        </div>
+                      </section>
+                    );
+                  })}
+                </section>
+              ) : null}
             </>
           ) : (
             <div className="empty-state">
@@ -307,6 +436,34 @@ export default async function PerformancesPage() {
           white-space: nowrap;
         }
 
+        .performance-past-group {
+          margin-top: 64px;
+          padding-top: 30px;
+          border-top: 1px solid #3a342c;
+        }
+
+        .performance-past-title {
+          display: flex;
+          align-items: baseline;
+          gap: 12px;
+          margin-bottom: 18px;
+          color: #eee7dc;
+        }
+
+        .performance-past-title span {
+          font-size: 28px;
+          font-weight: 700;
+        }
+
+        .performance-past-title small {
+          color: #8f877d;
+          font-size: 13px;
+        }
+
+        .performance-past-tabs {
+          margin-bottom: 28px;
+        }
+
         .performance-month-section {
           scroll-margin-top: 145px;
           margin-bottom: 48px;
@@ -339,7 +496,7 @@ export default async function PerformancesPage() {
 
           .performance-quick-links {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(3, 1fr);
           }
 
           .performance-quick-button {
